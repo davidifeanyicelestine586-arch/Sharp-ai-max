@@ -250,7 +250,7 @@ export default function App() {
     }
   };
 
-  const handleCreateSingleHistoryItem = (prompt: string, outputText: string, contentType: ContentType) => {
+  const handleCreateSingleHistoryItem = (prompt: string, outputText: string, contentType: ContentType, tags?: string[]) => {
     const titleSnippet = prompt.split(' ').slice(0, 4).join(' ');
     const freshItem: HistoryItem = {
       id: `draft-single-${Date.now()}`,
@@ -259,6 +259,7 @@ export default function App() {
       input: prompt,
       contentType,
       createdAt: new Date().toISOString(),
+      tags: tags || [],
       data: {
         singleOutput: outputText
       }
@@ -324,7 +325,8 @@ export default function App() {
       xThread: string[];
       instagramCaption: string;
       emailNewsletter: string;
-    }
+    },
+    tags?: string[]
   ) => {
     const snippet = idea.split(' ').slice(0, 4).join(' ');
     const freshItem: HistoryItem = {
@@ -333,10 +335,21 @@ export default function App() {
       title: `Stacked Suite: "${snippet}..."`,
       input: idea,
       createdAt: new Date().toISOString(),
+      tags: tags || [],
       data: assets
     };
 
     saveHistoryList([freshItem, ...history]);
+  };
+
+  const handleUpdateHistoryItemTags = (id: string, tags: string[]) => {
+    const updated = history.map(item => {
+      if (item.id === id) {
+        return { ...item, tags };
+      }
+      return item;
+    });
+    saveHistoryList(updated);
   };
 
   // History operations (Delete individual, clear workspace archives)
@@ -432,6 +445,7 @@ export default function App() {
             onClearAll={handleClearAllHistory}
             onCopy={handleCopyText}
             copiedId={copiedId}
+            onUpdateTags={handleUpdateHistoryItemTags}
           />
         );
       case 'profile':

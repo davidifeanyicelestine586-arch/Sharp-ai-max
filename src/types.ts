@@ -30,6 +30,7 @@ export interface HistoryItem {
     singleOutput?: string; // for single
   };
   createdAt: string;
+  tags?: string[];
 }
 
 export interface UserProfile {

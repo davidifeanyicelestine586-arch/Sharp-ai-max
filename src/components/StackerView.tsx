@@ -38,7 +38,8 @@ interface StackerViewProps {
       xThread: string[];
       instagramCaption: string;
       emailNewsletter: string;
-    }
+    },
+    tags?: string[]
   ) => void;
 }
 
@@ -60,6 +61,8 @@ export default function StackerView({ onStack, onAddMultiHistory }: StackerViewP
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<ContentType>('blog');
   const [copiedChannel, setCopiedChannel] = useState<string | null>(null);
   const [isSaved, setIsSaved] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>(['Draft']);
+  const [customTagText, setCustomTagText] = useState('');
 
   const loadingSteps = [
     'Deconstructing raw concept outline...',
@@ -137,7 +140,7 @@ ${stackedAssets.emailNewsletter}
 
   const handleSaveToStudio = () => {
     if (!stackedAssets) return;
-    onAddMultiHistory(ideaInput, stackedAssets);
+    onAddMultiHistory(ideaInput, stackedAssets, selectedTags);
     setIsSaved(true);
   };
 
@@ -252,6 +255,66 @@ ${stackedAssets.emailNewsletter}
                   </button>
                 );
               })}
+            </div>
+
+            {/* Visual Tag Assigner inside Stacker Side panel */}
+            <div className="pt-4 border-t border-slate-900 space-y-2.5 text-[10px]">
+              <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider font-mono select-none">Assign Stack Labels:</span>
+              <div className="flex flex-wrap items-center gap-1.5 select-none">
+                {['Draft', 'Final', 'Q1-Campaign'].map(t => {
+                  const isSelected = selectedTags.includes(t);
+                  return (
+                    <button
+                      key={t}
+                      onClick={() => {
+                        if (isSelected) {
+                          setSelectedTags(prev => prev.filter(x => x !== t));
+                        } else {
+                          setSelectedTags(prev => [...prev, t]);
+                        }
+                      }}
+                      className={`px-2 py-0.5 font-bold rounded border transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-indigo-500/15 border-indigo-500/30 text-indigo-300'
+                          : 'bg-slate-950 border-slate-900 hover:border-slate-800 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  );
+                })}
+                {selectedTags.filter(t => !['Draft', 'Final', 'Q1-Campaign'].includes(t)).map(t => (
+                  <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 shadow-sm uppercase font-mono">
+                    {t}
+                    <button
+                      onClick={() => setSelectedTags(prev => prev.filter(x => x !== t))}
+                      className="hover:text-rose-450 cursor-pointer text-xs"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="text"
+                  placeholder="+ Custom Label"
+                  value={customTagText}
+                  onChange={(e) => setCustomTagText(e.target.value.slice(0, 20))}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const trimmed = customTagText.trim();
+                      if (trimmed && !selectedTags.includes(trimmed)) {
+                        setSelectedTags(prev => [...prev, trimmed]);
+                      }
+                      setCustomTagText('');
+                    }
+                  }}
+                  className="w-full bg-slate-950 border border-slate-900 rounded px-2.5 py-1 text-[10px] focus:outline-none focus:border-indigo-500/40 text-slate-350 placeholder-slate-700 font-sans"
+                />
+              </div>
             </div>
 
             <div className="pt-4 border-t border-slate-900 flex flex-col gap-2">

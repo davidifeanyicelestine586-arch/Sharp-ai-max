@@ -25,7 +25,7 @@ import { ContentType, PromptTemplate } from '../types';
 interface SingleWriterViewProps {
   prompts: PromptTemplate[];
   onGenerate: (prompt: string, contentType: ContentType) => Promise<string>;
-  onAddHistory: (input: string, output: string, contentType: ContentType) => void;
+  onAddHistory: (input: string, output: string, contentType: ContentType, tags?: string[]) => void;
 }
 
 export default function SingleWriterView({ prompts, onGenerate, onAddHistory }: SingleWriterViewProps) {
@@ -38,6 +38,8 @@ export default function SingleWriterView({ prompts, onGenerate, onAddHistory }: 
   const [errorMsg, setErrorMsg] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>(['Draft']);
+  const [customTagText, setCustomTagText] = useState('');
 
   // Social platforms config
   const platforms = [
@@ -119,7 +121,7 @@ export default function SingleWriterView({ prompts, onGenerate, onAddHistory }: 
 
   const handleSaveToHistory = () => {
     if (!generatedText) return;
-    onAddHistory(promptInput, generatedText, contentType);
+    onAddHistory(promptInput, generatedText, contentType, selectedTags);
     setIsSaved(true);
   };
 
@@ -432,7 +434,67 @@ export default function SingleWriterView({ prompts, onGenerate, onAddHistory }: 
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto no-scrollbar">
+          <div className="flex-1 overflow-y-auto no-scrollbar space-y-4">
+            {generatedText && (
+              <div className="p-3 bg-slate-950 rounded-xl border border-slate-900/60 flex flex-wrap items-center justify-between gap-2.5 select-none animate-fade-in text-[10px]">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider font-mono mr-1">Labels:</span>
+                  {['Draft', 'Final', 'Q1-Campaign'].map(t => {
+                    const isSelected = selectedTags.includes(t);
+                    return (
+                      <button
+                        key={t}
+                        onClick={() => {
+                          if (isSelected) {
+                            setSelectedTags(prev => prev.filter(x => x !== t));
+                          } else {
+                            setSelectedTags(prev => [...prev, t]);
+                          }
+                        }}
+                        className={`px-2 py-0.5 text-[10px] font-bold rounded border transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-indigo-500/15 border-indigo-500/30 text-indigo-300'
+                            : 'bg-slate-900 border-slate-900 hover:border-slate-800 text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    );
+                  })}
+                  {selectedTags.filter(t => !['Draft', 'Final', 'Q1-Campaign'].includes(t)).map(t => (
+                    <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 shadow-sm uppercase font-mono">
+                      {t}
+                      <button
+                        onClick={() => setSelectedTags(prev => prev.filter(x => x !== t))}
+                        className="hover:text-rose-450 cursor-pointer text-xs leading-none"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <input
+                    type="text"
+                    placeholder="+ Custom Label"
+                    value={customTagText}
+                    onChange={(e) => setCustomTagText(e.target.value.slice(0, 20))}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const trimmed = customTagText.trim();
+                        if (trimmed && !selectedTags.includes(trimmed)) {
+                          setSelectedTags(prev => [...prev, trimmed]);
+                        }
+                        setCustomTagText('');
+                      }
+                    }}
+                    className="w-24 bg-slate-900 border border-slate-900 rounded px-2 py-0.5 text-[10px] focus:outline-none focus:border-indigo-500/40 text-slate-350 placeholder-slate-700 font-sans"
+                  />
+                </div>
+              </div>
+            )}
             <RenderSocialMockup />
           </div>
         </div>

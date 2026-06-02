@@ -31,19 +31,44 @@ interface HistoryViewProps {
   onClearAll: () => void;
   onCopy: (text: string) => void;
   copiedId: string | null;
+  onUpdateTags?: (id: string, tags: string[]) => void;
 }
 
-export default function HistoryView({ history, onDelete, onClearAll, onCopy, copiedId }: HistoryViewProps) {
+export default function HistoryView({ history, onDelete, onClearAll, onCopy, copiedId, onUpdateTags }: HistoryViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'single' | 'stacked'>('all');
   const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [selectedTagFilter, setSelectedTagFilter] = useState<string>('all');
+  const [showAddTagInput, setShowAddTagInput] = useState(false);
+  const [customTagInput, setCustomTagInput] = useState('');
+
+  const presets = ['Draft', 'Final', 'Q1-Campaign'];
+
+  const handleAddTag = (tagToAdd: string) => {
+    const trimmed = tagToAdd.trim();
+    if (!trimmed || !selectedItem) return;
+    const currentTags = selectedItem.tags || [];
+    if (!currentTags.includes(trimmed)) {
+      const newTags = [...currentTags, trimmed];
+      onUpdateTags?.(selectedItem.id, newTags);
+      setSelectedItem(prev => prev ? { ...prev, tags: newTags } : null);
+    }
+    setCustomTagInput('');
+    setShowAddTagInput(false);
+  };
+
+  // Get all unique tags from active history items to populate tag filter choices
+  const allUniqueTags = Array.from(new Set(
+    history.reduce<string[]>((acc, item) => [...acc, ...(item.tags || [])], [])
+  ));
 
   const filteredHistory = history.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           item.input.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = filterType === 'all' || item.type === filterType;
-    return matchesSearch && matchesType;
+    const matchesTag = selectedTagFilter === 'all' || (item.tags || []).includes(selectedTagFilter);
+    return matchesSearch && matchesType && matchesTag;
   });
 
   const handleDownload = (item: HistoryItem) => {
@@ -142,37 +167,69 @@ export default function HistoryView({ history, onDelete, onClearAll, onCopy, cop
       </div>
 
       {/* Sorting bar & search */}
-      <div className="flex flex-col md:flex-row items-center gap-4 justify-between bg-slate-950/40 p-4 rounded-2xl border border-slate-900/60 shadow-sm shrink-0">
-        <div className="relative w-full md:max-w-xs">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-650 shrink-0 select-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search campaign text or concept..."
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-950 text-slate-200 border border-slate-900 rounded-xl text-xs focus:outline-none focus:border-indigo-500/50 placeholder-slate-700 transition-colors"
-          />
+      <div className="space-y-4">
+        <div className="flex flex-col md:flex-row items-center gap-4 justify-between bg-slate-950/40 p-4 rounded-2xl border border-slate-900/60 shadow-sm shrink-0">
+          <div className="relative w-full md:max-w-xs">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-650 shrink-0 select-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search campaign text or concept..."
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-950 text-slate-200 border border-slate-900 rounded-xl text-xs focus:outline-none focus:border-indigo-500/50 placeholder-slate-700 transition-colors"
+            />
+          </div>
+
+          <div className="flex gap-1.5 py-0.5">
+            {[
+              { id: 'all', label: 'All Drafts' },
+              { id: 'single', label: 'Single Post' },
+              { id: 'stacked', label: 'Repurposed Stacks' },
+            ].map(type => (
+              <button
+                key={type.id}
+                onClick={() => setFilterType(type.id as any)}
+                className={`px-3 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                  filterType === type.id
+                    ? 'bg-indigo-600 text-slate-100 font-extrabold'
+                    : 'bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {type.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="flex gap-1.5 py-0.5">
-          {[
-            { id: 'all', label: 'All Drafts' },
-            { id: 'single', label: 'Single Post' },
-            { id: 'stacked', label: 'Repurposed Stacks' },
-          ].map(type => (
+        {/* Dynamic Tag Filters */}
+        {allUniqueTags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 px-4 py-2.5 bg-slate-950/20 rounded-2xl border border-slate-900/60 transition-all">
+            <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider font-mono mr-1.5 select-none">Filter by tag:</span>
             <button
-              key={type.id}
-              onClick={() => setFilterType(type.id as any)}
-              className={`px-3 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                filterType === type.id
-                  ? 'bg-indigo-600 text-slate-100 font-extrabold'
-                  : 'bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200'
+              onClick={() => setSelectedTagFilter('all')}
+              className={`px-2.5 py-1 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+                selectedTagFilter === 'all'
+                  ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                  : 'bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-950'
               }`}
             >
-              {type.label}
+              All Tags
             </button>
-          ))}
-        </div>
+            {allUniqueTags.map(tag => (
+              <button
+                key={tag}
+                onClick={() => setSelectedTagFilter(tag)}
+                className={`px-2.5 py-1 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+                  selectedTagFilter === tag
+                    ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                    : 'bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-950'
+                }`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Main Studio archive area */}
@@ -219,6 +276,15 @@ export default function HistoryView({ history, onDelete, onClearAll, onCopy, cop
                     <p className="text-[10px] text-slate-500 leading-normal line-clamp-2">
                       Input text: "{item.input}"
                     </p>
+                    {item.tags && item.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2.5 select-none text-[8px] font-bold font-mono">
+                        {item.tags.map(t => (
+                          <span key={t} className="px-1.5 py-0.5 uppercase rounded-md tracking-wider bg-slate-950/80 text-indigo-400 border border-slate-900 shadow-sm">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -231,11 +297,85 @@ export default function HistoryView({ history, onDelete, onClearAll, onCopy, cop
           {selectedItem ? (
             <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-900 space-y-6 shadow-sm min-h-[450px] flex flex-col animate-fade-in h-[600px]">
               <div className="flex items-center justify-between border-b border-slate-900/60 pb-4 shrink-0">
-                <div>
+                <div className="space-y-1">
                   <h3 className="text-sm font-bold text-slate-200 line-clamp-1">{selectedItem.title}</h3>
                   <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mt-1 inline-block">
                     {selectedItem.type === 'single' ? `Single ${selectedItem.contentType} draft` : '5-in-1 stacked draft'}
                   </span>
+                  
+                  {/* Interactive Dynamic Draft Tags Board */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1.5 select-none">
+                    {(selectedItem.tags || []).map(t => (
+                      <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold uppercase font-mono rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-sm">
+                        {t}
+                        <button
+                          onClick={() => {
+                            const newTags = (selectedItem.tags || []).filter(x => x !== t);
+                            onUpdateTags?.(selectedItem.id, newTags);
+                            setSelectedItem(prev => prev ? { ...prev, tags: newTags } : null);
+                          }}
+                          className="hover:text-rose-400 cursor-pointer p-0.5 rounded transition-colors text-indigo-400"
+                        >
+                          <X className="h-2.5 w-2.5 shrink-0" />
+                        </button>
+                      </span>
+                    ))}
+
+                    {/* Expandable text typing block */}
+                    {showAddTagInput ? (
+                      <div className="flex items-center gap-1.5 animate-fade-in py-0.5">
+                        <input
+                          type="text"
+                          value={customTagInput}
+                          onChange={(e) => setCustomTagInput(e.target.value.slice(0, 20))}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddTag(customTagInput);
+                            }
+                          }}
+                          placeholder="Type label name..."
+                          className="bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-[10px] focus:outline-none focus:border-indigo-500/50 text-slate-300 font-sans w-24"
+                          autoFocus
+                        />
+                        <button
+                          onClick={() => handleAddTag(customTagInput)}
+                          className="text-[9px] font-bold px-1.5 py-0.5 bg-indigo-600 hover:bg-indigo-500 rounded text-slate-100 cursor-pointer"
+                        >
+                          Add
+                        </button>
+                        <button
+                          onClick={() => setShowAddTagInput(false)}
+                          className="text-slate-500 hover:text-slate-300 cursor-pointer"
+                        >
+                          <X className="h-3 w-3 shrink-0" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowAddTagInput(true)}
+                        className="inline-flex items-center gap-0.5 px-2 py-0.5 text-[10px] font-extrabold rounded bg-slate-950 hover:bg-slate-900 border border-slate-900 text-slate-400 hover:text-indigo-400 cursor-pointer transition-colors"
+                      >
+                        + Custom Label
+                      </button>
+                    )}
+
+                    {/* Presets suggestions directly available in gray text buttons */}
+                    {presets.filter(p => !(selectedItem.tags || []).includes(p)).map(p => (
+                      <button
+                        key={p}
+                        onClick={() => {
+                          const currentTags = selectedItem.tags || [];
+                          const newTags = [...currentTags, p];
+                          onUpdateTags?.(selectedItem.id, newTags);
+                          setSelectedItem(prev => prev ? { ...prev, tags: newTags } : null);
+                        }}
+                        className="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold rounded bg-slate-950 hover:bg-slate-900 text-slate-500 hover:text-slate-300 border border-slate-900 cursor-pointer transition-colors"
+                      >
+                        +{p}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-1.5">
