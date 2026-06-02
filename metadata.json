@@ -1,0 +1,6 @@
+{
+  "name": "Sharp AI",
+  "description": "An AI-powered Content Studio SaaS that helps creators, students, entrepreneurs, marketers, and businesses transform a single idea into multiple forms of content quickly and efficiently.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
