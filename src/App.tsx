@@ -19,6 +19,7 @@ import PromptLibraryView from './components/PromptLibraryView';
 import HistoryView from './components/HistoryView';
 import ProfileView from './components/ProfileView';
 import AuthOverlay from './components/AuthOverlay';
+import TagGuideModal from './components/TagGuideModal';
 
 // Stock initial prompt templates
 const STOCK_TEMPLATES: PromptTemplate[] = [
@@ -92,6 +93,9 @@ export default function App() {
   // Clipboard Copied Notifications ID indicator
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  // Guided Tag onboarding modal indicator
+  const [isTagGuideOpen, setIsTagGuideOpen] = useState(false);
+
   // Sync state with localStorage once at load
   useEffect(() => {
     const savedUser = localStorage.getItem('sharp_ai_user_profile');
@@ -122,6 +126,16 @@ export default function App() {
       }
     }
   }, []);
+
+  // Auto-onboard new sessions who haven't reviewed the tagging documentation
+  useEffect(() => {
+    if (user.isLoggedIn) {
+      const seenGuide = localStorage.getItem('sharp_ai_seen_tag_guide');
+      if (!seenGuide) {
+        setIsTagGuideOpen(true);
+      }
+    }
+  }, [user.isLoggedIn]);
 
   // Utility to update and persist user state
   const updateProfileAndSave = (updatedProfile: Partial<UserProfile>) => {
@@ -411,6 +425,7 @@ export default function App() {
             onCopy={handleCopyText}
             onDelete={handleDeleteHistoryItem}
             copiedId={copiedId}
+            onOpenTagGuide={() => setIsTagGuideOpen(true)}
           />
         );
       case 'write':
@@ -446,6 +461,7 @@ export default function App() {
             onCopy={handleCopyText}
             copiedId={copiedId}
             onUpdateTags={handleUpdateHistoryItemTags}
+            onOpenTagGuide={() => setIsTagGuideOpen(true)}
           />
         );
       case 'profile':
@@ -478,6 +494,15 @@ export default function App() {
           {renderTabContent()}
         </div>
       </main>
+
+      {/* Guided Tag Overlay Model */}
+      <TagGuideModal 
+        isOpen={isTagGuideOpen} 
+        onClose={() => {
+          localStorage.setItem('sharp_ai_seen_tag_guide', 'true');
+          setIsTagGuideOpen(false);
+        }} 
+      />
     </div>
   );
 }

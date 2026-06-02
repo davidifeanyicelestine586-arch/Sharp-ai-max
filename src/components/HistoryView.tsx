@@ -32,9 +32,10 @@ interface HistoryViewProps {
   onCopy: (text: string) => void;
   copiedId: string | null;
   onUpdateTags?: (id: string, tags: string[]) => void;
+  onOpenTagGuide?: () => void;
 }
 
-export default function HistoryView({ history, onDelete, onClearAll, onCopy, copiedId, onUpdateTags }: HistoryViewProps) {
+export default function HistoryView({ history, onDelete, onClearAll, onCopy, copiedId, onUpdateTags, onOpenTagGuide }: HistoryViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'single' | 'stacked'>('all');
   const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
@@ -126,7 +127,18 @@ export default function HistoryView({ history, onDelete, onClearAll, onCopy, cop
             <History className="h-3.5 w-3.5 shrink-0" />
             Workspace Storage
           </div>
-          <h1 className="text-2xl md:text-3xl font-display font-extrabold tracking-tight">Content Studio Archive</h1>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-2xl md:text-3xl font-display font-extrabold tracking-tight">Content Studio Archive</h1>
+            {onOpenTagGuide && (
+              <button
+                onClick={onOpenTagGuide}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-full border border-indigo-500/25 transition-colors cursor-pointer select-none active:scale-95"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                Onboarding Guide
+              </button>
+            )}
+          </div>
           <p className="text-xs md:text-sm text-slate-400">
             Review, copy, export, or tidy up any marketing campaigns generated in this workspace.
           </p>

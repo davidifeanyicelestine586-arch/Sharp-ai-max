@@ -32,9 +32,10 @@ interface DashboardViewProps {
   onCopy: (text: string) => void;
   onDelete: (id: string) => void;
   copiedId: string | null;
+  onOpenTagGuide?: () => void;
 }
 
-export default function DashboardView({ stats, user, setActiveTab, onCopy, onDelete, copiedId }: DashboardViewProps) {
+export default function DashboardView({ stats, user, setActiveTab, onCopy, onDelete, copiedId, onOpenTagGuide }: DashboardViewProps) {
   
   // Distribute percentages for the chart
   const items = stats.recentActivity;
@@ -74,8 +75,8 @@ export default function DashboardView({ stats, user, setActiveTab, onCopy, onDel
             <h1 className="text-3xl md:text-4xl font-display font-extrabold text-slate-100 tracking-tight">
               Welcome back, <span className="bg-gradient-to-r from-indigo-300 via-indigo-100 to-purple-300 bg-clip-text text-transparent">{user.name}</span>!
             </h1>
-            <p className="text-sm md:text-base text-slate-400 max-w-xl">
-              Sharp AI Content Studio has repurposed your ideas. Let's stack some assets for your channels today.
+            <p className="text-sm md:text-base text-slate-400 max-w-xl leading-relaxed">
+              Sharp AI Content Studio has repurposed your ideas. Let's stack some assets for your channels today. Need help organizing your campaign drafts? Learn on our <button onClick={onOpenTagGuide} className="text-indigo-400 hover:text-indigo-300 font-bold transition-colors cursor-pointer inline underline decoration-indigo-400/30 underline-offset-4">Tag Onboarding Guide &rarr;</button>{" "}
             </p>
           </div>
           <div>
