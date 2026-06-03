@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Sparkles, 
   Send, 
@@ -40,6 +40,38 @@ export default function SingleWriterView({ prompts, onGenerate, onAddHistory }: 
   const [isSaved, setIsSaved] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>(['Draft']);
   const [customTagText, setCustomTagText] = useState('');
+  const [autoSaveStatus, setAutoSaveStatus] = useState('');
+
+  // Load auto-saved draft from memory on initial loader mount
+  useEffect(() => {
+    const savedPrompt = localStorage.getItem('sharp_ai_single_prompt_autosave');
+    const savedType = localStorage.getItem('sharp_ai_single_prompt_autosave_type');
+    if (savedPrompt) {
+      setPromptInput(savedPrompt);
+      setAutoSaveStatus('Draft restored from backup');
+      const timer = setTimeout(() => setAutoSaveStatus(''), 5000);
+      return () => clearTimeout(timer);
+    }
+    if (savedType) {
+      setContentType(savedType as ContentType);
+    }
+  }, []);
+
+  // Periodic 30-seconds auto-save worker
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      if (promptInput.trim()) {
+        localStorage.setItem('sharp_ai_single_prompt_autosave', promptInput);
+        localStorage.setItem('sharp_ai_single_prompt_autosave_type', contentType);
+        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        setAutoSaveStatus(`Draft auto-saved at ${timestamp}`);
+        const statusTimer = setTimeout(() => setAutoSaveStatus(''), 4000);
+        return () => clearTimeout(statusTimer);
+      }
+    }, 30000);
+
+    return () => clearInterval(timerId);
+  }, [promptInput, contentType]);
 
   // Social platforms config
   const platforms = [
@@ -346,7 +378,14 @@ export default function SingleWriterView({ prompts, onGenerate, onAddHistory }: 
           {/* Main Area Input */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs font-semibold">
-              <label className="text-slate-400">What are you developing or marketing?</label>
+              <label className="text-slate-400 flex items-center gap-2">
+                <span>What are you developing or marketing?</span>
+                {autoSaveStatus && (
+                  <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-mono font-medium animate-pulse">
+                    • {autoSaveStatus}
+                  </span>
+                )}
+              </label>
               <span className="text-slate-600 font-mono text-[10px]">{promptInput.length}/1000 characters</span>
             </div>
             
