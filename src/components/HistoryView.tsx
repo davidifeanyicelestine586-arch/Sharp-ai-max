@@ -24,6 +24,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { HistoryItem, ContentType } from '../types';
+import { exportItemToPDF } from '../utils/pdfGenerator';
 
 interface HistoryViewProps {
   history: HistoryItem[];
@@ -408,6 +409,14 @@ export default function HistoryView({ history, onDelete, onClearAll, onCopy, cop
                     title="Download/Export Markdown"
                   >
                     <Download className="h-3.5 w-3.5 font-bold" />
+                  </button>
+                  <button
+                    onClick={() => exportItemToPDF(selectedItem)}
+                    className="p-1.5 rounded-lg bg-indigo-950/40 hover:bg-indigo-900/30 border border-indigo-900/40 text-indigo-400 hover:text-indigo-300 transition-all cursor-pointer text-xs flex items-center gap-1.5 font-bold px-2.5 active:scale-95"
+                    title="Export as Styled PDF"
+                  >
+                    <FileText className="h-3.5 w-3.5" />
+                    <span>Export PDF</span>
                   </button>
                   <button
                     onClick={() => {

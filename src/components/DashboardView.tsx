@@ -19,6 +19,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { HistoryItem, UserProfile } from '../types';
+import { exportItemToPDF } from '../utils/pdfGenerator';
 
 interface DashboardViewProps {
   stats: {
@@ -353,6 +354,13 @@ export default function DashboardView({ stats, user, setActiveTab, onCopy, onDel
                   </div>
 
                   <div className="flex items-center gap-1 self-center">
+                    <button
+                      onClick={() => exportItemToPDF(item)}
+                      className="p-2 rounded-lg bg-indigo-950/30 hover:bg-indigo-900/40 text-indigo-400 hover:text-indigo-300 transition-colors border border-indigo-900/20 cursor-pointer"
+                      title="Export as Styled PDF"
+                    >
+                      <FileText className="h-4 w-4" />
+                    </button>
                     <button
                       onClick={() => onCopy(previewText)}
                       className="p-2 rounded-lg bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors border border-slate-900 cursor-pointer"
