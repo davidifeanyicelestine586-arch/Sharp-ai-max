@@ -96,6 +96,29 @@ export default function App() {
   // Guided Tag onboarding modal indicator
   const [isTagGuideOpen, setIsTagGuideOpen] = useState(false);
 
+  // Layout presentation theme (dark/light mode) state
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('sharp_ai_theme');
+    return (saved === 'light' || saved === 'dark') ? saved : 'dark';
+  });
+
+  // Keep layout element dark-mode settings synced on load and change
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.style.colorScheme = 'dark';
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.style.colorScheme = 'light';
+    }
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem('sharp_ai_theme', nextTheme);
+  };
+
   // Sync state with localStorage once at load
   useEffect(() => {
     const savedUser = localStorage.getItem('sharp_ai_user_profile');
@@ -479,17 +502,19 @@ export default function App() {
   };
 
   return (
-    <div id="sharp-ai-app-shell" className="flex flex-col md:flex-row h-screen w-screen bg-slate-950 overflow-hidden text-slate-100 antialiased font-sans">
+    <div id="sharp-ai-app-shell" className="flex flex-col md:flex-row h-screen w-screen bg-slate-50 dark:bg-slate-950 overflow-hidden text-slate-900 dark:text-slate-100 antialiased font-sans transition-colors duration-300">
       {/* Persisting sidebar / mobile responsive drawer banner */}
       <Sidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab}
         user={user}
         onLogout={handleLogout}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
       />
       
       {/* Workspace central work area */}
-      <main className="flex-1 h-full md:h-screen overflow-y-auto overflow-x-hidden p-6 md:p-10 bg-slate-950">
+      <main className="flex-1 h-full md:h-screen overflow-y-auto overflow-x-hidden p-6 md:p-10 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
         <div className="max-w-7xl mx-auto">
           {renderTabContent()}
         </div>
