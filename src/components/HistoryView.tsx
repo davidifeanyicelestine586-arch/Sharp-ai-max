@@ -21,7 +21,9 @@ import {
   Mail,
   MoreVertical,
   ChevronRight,
-  AlertCircle
+  AlertCircle,
+  Star,
+  RefreshCw
 } from 'lucide-react';
 import { HistoryItem, ContentType } from '../types';
 import { exportItemToPDF } from '../utils/pdfGenerator';
@@ -34,16 +36,29 @@ interface HistoryViewProps {
   copiedId: string | null;
   onUpdateTags?: (id: string, tags: string[]) => void;
   onOpenTagGuide?: () => void;
+  onToggleFavorite: (id: string) => void;
+  onRegenerate: (item: HistoryItem) => void;
 }
 
-export default function HistoryView({ history, onDelete, onClearAll, onCopy, copiedId, onUpdateTags, onOpenTagGuide }: HistoryViewProps) {
+export default function HistoryView({ 
+  history, 
+  onDelete, 
+  onClearAll, 
+  onCopy, 
+  copiedId, 
+  onUpdateTags, 
+  onOpenTagGuide,
+  onToggleFavorite,
+  onRegenerate
+}: HistoryViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'single' | 'stacked'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'single' | 'stacked' | 'favorites'>('all');
   const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [selectedTagFilter, setSelectedTagFilter] = useState<string>('all');
   const [showAddTagInput, setShowAddTagInput] = useState(false);
   const [customTagInput, setCustomTagInput] = useState('');
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const presets = ['Draft', 'Final', 'Q1-Campaign'];
 
@@ -68,7 +83,8 @@ export default function HistoryView({ history, onDelete, onClearAll, onCopy, cop
   const filteredHistory = history.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           item.input.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = filterType === 'all' || item.type === filterType;
+    const matchesType = filterType === 'all' || 
+                        (filterType === 'favorites' ? item.isFavorite : item.type === filterType);
     const matchesTag = selectedTagFilter === 'all' || (item.tags || []).includes(selectedTagFilter);
     return matchesSearch && matchesType && matchesTag;
   });
@@ -198,6 +214,7 @@ export default function HistoryView({ history, onDelete, onClearAll, onCopy, cop
               { id: 'all', label: 'All Drafts' },
               { id: 'single', label: 'Single Post' },
               { id: 'stacked', label: 'Repurposed Stacks' },
+              { id: 'favorites', label: '★ Favorites' },
             ].map(type => (
               <button
                 key={type.id}
@@ -271,15 +288,101 @@ export default function HistoryView({ history, onDelete, onClearAll, onCopy, cop
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-2 select-none">
-                    {getFormatBadge(item)}
-                    <span className="text-[9px] font-mono text-slate-650">
-                      {new Date(item.createdAt).toLocaleDateString(undefined, { 
-                        month: 'short', 
-                        day: 'numeric',
-                        hour: '2-digit', 
-                        minute: '2-digit'
-                      })}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {getFormatBadge(item)}
+                      {item.isFavorite && (
+                        <span className="flex items-center" title="Favorited">
+                          <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 relative">
+                      <span className="text-[9px] font-mono text-slate-500 dark:text-slate-450">
+                        {new Date(item.createdAt).toLocaleDateString(undefined, { 
+                          month: 'short', 
+                          day: 'numeric',
+                          hour: '2-digit', 
+                          minute: '2-digit'
+                        })}
+                      </span>
+                      {/* Quick Actions floating dropdown button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuId(openMenuId === item.id ? null : item.id);
+                        }}
+                        className="p-1 rounded hover:bg-slate-250 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+                        title="Quick Actions"
+                      >
+                        <MoreVertical className="h-3.5 w-3.5" />
+                      </button>
+
+                      {openMenuId === item.id && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-30 cursor-default" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenMenuId(null);
+                            }}
+                          />
+                          <div className="absolute right-0 top-6 mt-1 w-44 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1.5 z-40 text-xs text-left animate-fade-in divide-y divide-slate-100 dark:divide-slate-800 font-sans">
+                            <div className="py-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onToggleFavorite(item.id);
+                                  setOpenMenuId(null);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors uppercase font-mono text-[9px] font-extrabold"
+                              >
+                                <Star className={`h-3.5 w-3.5 ${item.isFavorite ? 'text-amber-500 fill-amber-500' : 'text-slate-400'}`} />
+                                <span>{item.isFavorite ? 'Unfavorite' : 'Favorite'}</span>
+                              </button>
+                              
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onRegenerate(item);
+                                  setOpenMenuId(null);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors uppercase font-mono text-[9px] font-extrabold"
+                              >
+                                <RefreshCw className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
+                                <span>Re-generate</span>
+                              </button>
+
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  exportItemToPDF(item);
+                                  setOpenMenuId(null);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors uppercase font-mono text-[9px] font-extrabold"
+                              >
+                                <FileText className="h-3.5 w-3.5 text-sky-500 dark:text-sky-400" />
+                                <span>Export PDF</span>
+                              </button>
+                            </div>
+                            
+                            <div className="py-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onDelete(item.id);
+                                  if (selectedItem?.id === item.id) setSelectedItem(null);
+                                  setOpenMenuId(null);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-rose-600 dark:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-955/20 transition-colors uppercase font-mono text-[9px] font-extrabold"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                                <span>Delete Item</span>
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
 
                   <div className="space-y-1">

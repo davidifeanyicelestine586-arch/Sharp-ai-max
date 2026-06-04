@@ -41,10 +41,20 @@ interface StackerViewProps {
     },
     tags?: string[]
   ) => void;
+  prepopulatedPrompt?: string;
+  onResetPrepopulated?: () => void;
 }
 
-export default function StackerView({ onStack, onAddMultiHistory }: StackerViewProps) {
+export default function StackerView({ onStack, onAddMultiHistory, prepopulatedPrompt, onResetPrepopulated }: StackerViewProps) {
   const [ideaInput, setIdeaInput] = useState('');
+
+  // Apply prepopulated values on mount/prop change
+  React.useEffect(() => {
+    if (prepopulatedPrompt) {
+      setIdeaInput(prepopulatedPrompt);
+      onResetPrepopulated?.();
+    }
+  }, [prepopulatedPrompt, onResetPrepopulated]);
   const [isStacking, setIsStacking] = useState(false);
   const [loadingStep, setLoadingStep] = useState('Extracting core concepts...');
   const [errorMsg, setErrorMsg] = useState('');

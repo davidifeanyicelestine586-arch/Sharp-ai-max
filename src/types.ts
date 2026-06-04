@@ -31,6 +31,7 @@ export interface HistoryItem {
   };
   createdAt: string;
   tags?: string[];
+  isFavorite?: boolean;
 }
 
 export interface UserProfile {

@@ -96,6 +96,10 @@ export default function App() {
   // Guided Tag onboarding modal indicator
   const [isTagGuideOpen, setIsTagGuideOpen] = useState(false);
 
+  // Prepopulated values to feed into content generators on re-generate request
+  const [prepopulatedPrompt, setPrepopulatedPrompt] = useState<string>('');
+  const [prepopulatedType, setPrepopulatedType] = useState<ContentType | undefined>(undefined);
+
   // Layout presentation theme (dark/light mode) state
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const saved = localStorage.getItem('sharp_ai_theme');
@@ -389,6 +393,26 @@ export default function App() {
     saveHistoryList(updated);
   };
 
+  const handleToggleFavoriteHistoryItem = (id: string) => {
+    const updated = history.map(item => {
+      if (item.id === id) {
+        return { ...item, isFavorite: !item.isFavorite };
+      }
+      return item;
+    });
+    saveHistoryList(updated);
+  };
+
+  const handleRegenerateHistoryItem = (item: HistoryItem) => {
+    setPrepopulatedPrompt(item.input);
+    if (item.type === 'single') {
+      setPrepopulatedType(item.contentType);
+      setActiveTab('write');
+    } else {
+      setActiveTab('stacker');
+    }
+  };
+
   // History operations (Delete individual, clear workspace archives)
   const handleDeleteHistoryItem = (id: string) => {
     const updated = history.filter(item => item.id !== id);
@@ -457,6 +481,12 @@ export default function App() {
             prompts={finalPrompts}
             onGenerate={handleGenerateSingleText}
             onAddHistory={handleCreateSingleHistoryItem}
+            prepopulatedPrompt={prepopulatedPrompt}
+            prepopulatedType={prepopulatedType}
+            onResetPrepopulated={() => {
+              setPrepopulatedPrompt('');
+              setPrepopulatedType(undefined);
+            }}
           />
         );
       case 'stacker':
@@ -464,6 +494,10 @@ export default function App() {
           <StackerView
             onStack={handleStackMultiChannel}
             onAddMultiHistory={handleCreateMultiHistoryItem}
+            prepopulatedPrompt={prepopulatedPrompt}
+            onResetPrepopulated={() => {
+              setPrepopulatedPrompt('');
+            }}
           />
         );
       case 'prompts':
@@ -485,6 +519,8 @@ export default function App() {
             copiedId={copiedId}
             onUpdateTags={handleUpdateHistoryItemTags}
             onOpenTagGuide={() => setIsTagGuideOpen(true)}
+            onToggleFavorite={handleToggleFavoriteHistoryItem}
+            onRegenerate={handleRegenerateHistoryItem}
           />
         );
       case 'profile':

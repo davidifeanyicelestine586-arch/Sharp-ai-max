@@ -26,9 +26,19 @@ interface SingleWriterViewProps {
   prompts: PromptTemplate[];
   onGenerate: (prompt: string, contentType: ContentType) => Promise<string>;
   onAddHistory: (input: string, output: string, contentType: ContentType, tags?: string[]) => void;
+  prepopulatedPrompt?: string;
+  prepopulatedType?: ContentType;
+  onResetPrepopulated?: () => void;
 }
 
-export default function SingleWriterView({ prompts, onGenerate, onAddHistory }: SingleWriterViewProps) {
+export default function SingleWriterView({ 
+  prompts, 
+  onGenerate, 
+  onAddHistory,
+  prepopulatedPrompt,
+  prepopulatedType,
+  onResetPrepopulated
+}: SingleWriterViewProps) {
   const [promptInput, setPromptInput] = useState('');
   const [contentType, setContentType] = useState<ContentType>('linkedin');
   const [selectedCategory, setSelectedCategory] = useState<'marketing' | 'business' | 'education' | 'technology' | 'personal branding' | 'all'>('all');
@@ -42,17 +52,31 @@ export default function SingleWriterView({ prompts, onGenerate, onAddHistory }: 
   const [customTagText, setCustomTagText] = useState('');
   const [autoSaveStatus, setAutoSaveStatus] = useState('');
 
+  // Handle incoming prepopulated values for re-generation
+  useEffect(() => {
+    if (prepopulatedPrompt) {
+      setPromptInput(prepopulatedPrompt);
+      if (prepopulatedType) {
+        setContentType(prepopulatedType);
+      }
+      setAutoSaveStatus('Previous prompt loaded for re-generation');
+      const timer = setTimeout(() => setAutoSaveStatus(''), 4000);
+      onResetPrepopulated?.();
+      return () => clearTimeout(timer);
+    }
+  }, [prepopulatedPrompt, prepopulatedType, onResetPrepopulated]);
+
   // Load auto-saved draft from memory on initial loader mount
   useEffect(() => {
     const savedPrompt = localStorage.getItem('sharp_ai_single_prompt_autosave');
     const savedType = localStorage.getItem('sharp_ai_single_prompt_autosave_type');
-    if (savedPrompt) {
+    if (savedPrompt && !prepopulatedPrompt) {
       setPromptInput(savedPrompt);
       setAutoSaveStatus('Draft restored from backup');
       const timer = setTimeout(() => setAutoSaveStatus(''), 5000);
       return () => clearTimeout(timer);
     }
-    if (savedType) {
+    if (savedType && !prepopulatedType) {
       setContentType(savedType as ContentType);
     }
   }, []);
