@@ -87,6 +87,10 @@ Sharp-ai-max/
 │   │   ├── SingleWriterView.tsx
 │   │   ├── StackerView.tsx
 │   │   └── TagGuideModal.tsx
+│   ├── lib/
+│   │   ├── api.ts
+│   │   ├── storage.ts
+│   │   └── validation.ts
 │   ├── utils/
 │   │   └── pdfGenerator.ts
 │   ├── App.tsx
@@ -148,6 +152,8 @@ The production server serves the built frontend and API from the same Express pr
 | `npm run build` | Build the frontend and bundle the server |
 | `npm start` | Start the production server from `dist/server.cjs` |
 | `npm run lint` | Run TypeScript checking without emitting files |
+| `npm run typecheck` | Run strict TypeScript checking |
+| `npm test` | Run automated validation tests |
 | `npm run clean` | Remove generated build output |
 
 ## Environment Variables
@@ -165,7 +171,7 @@ The current implementation is an active product prototype rather than a complete
 - There is no durable server-side user database in the current repository.
 - There is no payment provider integration in the current repository.
 - Generation depends on a valid Gemini API key and network access to Gemini.
-- Automated test coverage is not currently documented as comprehensive.
+- Automated coverage currently focuses on request and model-output validation; broader component and end-to-end coverage is still planned.
 
 These limitations are stated intentionally so the repository does not claim capabilities that are not implemented.
 
@@ -173,8 +179,13 @@ These limitations are stated intentionally so the repository does not claim capa
 - Keep `.env` out of version control.
 - Keep API credentials server-side.
 - Do not trust client-side credit, plan, or authentication state for production authorization.
+- Validate every AI API request server-side, including body shape, allowed content types, and input size.
+- Apply endpoint rate limits and a small concurrent-request cap to reduce API abuse and resource exhaustion.
+- Validate structured model output before returning it to the browser.
+- Use security response headers and a production Content Security Policy.
+- Keep local workspace data schema-checked and clear workspace-specific data when the user signs out.
 - Validate and authorize sensitive operations before introducing real accounts, billing, or persistent user data.
-- Review rate limiting, request validation, abuse controls, and error handling before wider public exposure.
+- Treat the client-side tier/credit display as UX state only; production usage enforcement must move server-side.
 
 ## Development Principles
 - Document what is actually implemented.
@@ -188,8 +199,8 @@ These limitations are stated intentionally so the repository does not claim capa
 1. Verify and harden the current generation workflows.
 2. Separate authentication, user data, usage enforcement, and billing into explicit service boundaries.
 3. Introduce durable persistence where required.
-4. Add automated tests for generation, validation, failure states, and usage limits.
-5. Strengthen API security and abuse controls.
+4. Expand automated tests to generation workflows, failure states, accessibility, and usage limits.
+5. Strengthen distributed rate limiting and abuse controls when the app is deployed across multiple server instances.
 6. Continue the UI/UX and AI-slop audit against the project's human-centered quality standard.
 
 ## Author
