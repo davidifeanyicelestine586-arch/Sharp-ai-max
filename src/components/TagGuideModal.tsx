@@ -117,7 +117,7 @@ export default function TagGuideModal({ isOpen, onClose }: TagGuideModalProps) {
               </h2>
             </div>
           </div>
-          <button 
+          <button type="button" 
             onClick={onClose}
             className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer transition-colors"
             aria-label="Close guide"
@@ -151,14 +151,14 @@ export default function TagGuideModal({ isOpen, onClose }: TagGuideModalProps) {
 
           <div className="flex items-center gap-2">
             {currentStep > 0 && (
-              <button
+              <button type="button"
                 onClick={() => setCurrentStep(prev => prev - 1)}
                 className="px-3 py-1.5 border border-slate-800 bg-slate-950 hover:bg-slate-850 text-slate-400 hover:text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors"
               >
                 Back
               </button>
             )}
-            <button
+            <button type="button"
               onClick={handleNext}
               className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors"
             >
