@@ -17,7 +17,7 @@ import {
   Clock,
   RotateCcw
 } from 'lucide-react';
-import { ContentType, PromptTemplate } from '../types';
+import { ContentType, PromptCategory, PromptTemplate } from '../types';
 
 interface SingleWriterViewProps {
   prompts: PromptTemplate[];
@@ -345,7 +345,7 @@ export default function SingleWriterView({
                 {categories.map(c => (
                   <button
                     key={c.id}
-                    onClick={() => setSelectedCategory(c.id as any)}
+                    onClick={() => setSelectedCategory(c.id as PromptCategory)}
                     className={`px-2 py-0.5 text-[10px] font-mono font-semibold uppercase tracking-wider rounded-md transition-colors cursor-pointer ${
                       selectedCategory === c.id 
                         ? 'bg-indigo-600 text-white' 
