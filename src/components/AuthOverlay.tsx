@@ -164,7 +164,7 @@ export default function AuthOverlay({ onLoginSuccess }: AuthOverlayProps) {
           <p className="text-slate-400 text-[11px]">
             {isSignUp ? 'Already have a local workspace?' : 'Need a new local workspace?'}
             {' '}
-            <button
+            <button type="button"
               onClick={() => {
                 setIsSignUp(!isSignUp);
                 setErrorMsg('');
@@ -175,7 +175,7 @@ export default function AuthOverlay({ onLoginSuccess }: AuthOverlayProps) {
             </button>
           </p>
 
-          <button
+          <button type="button"
             onClick={handleDemoEntry}
             className="w-full py-2 rounded-xl bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-300 hover:text-white text-xs font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors"
           >
