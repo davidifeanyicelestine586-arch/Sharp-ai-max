@@ -89,7 +89,7 @@ export default function ProfileView({ user, onUpgrade, onDowngrade, onUpdateName
                   ) : (
                     <div className="flex items-center gap-2">
                       <h4 className="text-sm font-bold text-white leading-none truncate">{user.name}</h4>
-                      <button 
+                      <button type="button" 
                         onClick={() => setEditMode(true)}
                         className="text-[11px] text-indigo-400 hover:text-indigo-300 cursor-pointer font-semibold"
                       >
@@ -203,14 +203,14 @@ export default function ProfileView({ user, onUpgrade, onDowngrade, onUpdateName
               )}
 
               {user.tier === 'free' ? (
-                <button
+                <button type="button"
                   onClick={triggerUpgrade}
                   className="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold leading-none cursor-pointer transition-colors shadow-sm"
                 >
                   Preview Pro Tier
                 </button>
               ) : (
-                <button
+                <button type="button"
                   onClick={onDowngrade}
                   className="w-full py-2.5 px-4 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 text-xs font-semibold leading-none cursor-pointer transition-colors"
                 >
