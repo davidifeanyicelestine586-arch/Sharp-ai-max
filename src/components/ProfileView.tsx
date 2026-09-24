@@ -21,8 +21,6 @@ export default function ProfileView({ user, onUpgrade, onDowngrade, onUpdateName
   const [inputName, setInputName] = useState(user.name);
   const [upgradeSuccess, setUpgradeSuccess] = useState(false);
 
-  const wordPercentage = Math.min(100, Math.round((user.wordCountGenerated / 5000) * 100));
-
   const handleSaveName = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputName.trim()) {
@@ -131,24 +129,26 @@ export default function ProfileView({ user, onUpgrade, onDowngrade, onUpdateName
             <div className="space-y-2 pt-2">
               <div className="flex justify-between text-xs">
                 <span className="font-semibold text-slate-300">Monthly Word Budget</span>
-                <span className="font-mono text-slate-400 tabular-nums">
-                  {user.tier === 'pro' 
-                    ? `${user.wordCountGenerated.toLocaleString()} words (Unlimited)` 
-                    : `${user.wordCountGenerated.toLocaleString()} / 5,000 words`
-                  }
-                </span>
+                <span className="font-mono text-slate-400 tabular-nums">{user.creditsUsed.toLocaleString()} / {user.creditsTotal.toLocaleString()} credits used</span>
               </div>
 
               {user.tier === 'free' ? (
                 <div className="space-y-1">
-                  <div className="w-full bg-slate-950 rounded-md h-2 overflow-hidden border border-slate-800">
-                    <div 
-                      className="h-full bg-indigo-500 rounded-sm transition-all duration-300" 
-                      style={{ width: `${Math.max(2, wordPercentage)}%` }}
+                  <div
+                    className="w-full bg-slate-950 rounded-md h-2 overflow-hidden border border-slate-800"
+                    role="progressbar"
+                    aria-label="Local preview credits used"
+                    aria-valuemin={0}
+                    aria-valuemax={user.creditsTotal}
+                    aria-valuenow={Math.min(user.creditsUsed, user.creditsTotal)}
+                  >
+                    <div
+                      className="h-full bg-indigo-500 rounded-sm transition-all duration-300"
+                      style={{ width: `${Math.max(2, Math.min(100, Math.round((user.creditsUsed / Math.max(1, user.creditsTotal)) * 100)))}%` }}
                     />
                   </div>
                   <p className="text-[11px] text-slate-400 leading-relaxed">
-                    Free tier includes 5,000 generated words per month. Upgrading to Pro unlocks unmetered volume.
+                    Credits are local prototype state. They are not secure server-side quota enforcement.
                   </p>
                 </div>
               ) : (
