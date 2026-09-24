@@ -216,7 +216,7 @@ ${stackedAssets.emailNewsletter}
           <span className="text-xs font-mono text-slate-500 tabular-nums">
             {ideaInput.length}/4000 characters
           </span>
-          <button
+          <button type="button"
             id="activate-stacker-button"
             onClick={handleStack}
             disabled={isStacking}
@@ -258,7 +258,7 @@ ${stackedAssets.emailNewsletter}
                 const Icon = chan.icon;
                 const isSelected = activeWorkspaceTab === chan.id;
                 return (
-                  <button
+                  <button type="button"
                     key={chan.id}
                     onClick={() => setActiveWorkspaceTab(chan.id as ContentType)}
                     className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-colors cursor-pointer ${
@@ -291,7 +291,7 @@ ${stackedAssets.emailNewsletter}
                 {['Draft', 'Final', 'Q1-Campaign'].map(t => {
                   const isSelected = selectedTags.includes(t);
                   return (
-                    <button
+                    <button type="button"
                       key={t}
                       onClick={() => {
                         if (isSelected) {
@@ -313,7 +313,7 @@ ${stackedAssets.emailNewsletter}
                 {selectedTags.filter(t => !['Draft', 'Final', 'Q1-Campaign'].includes(t)).map(t => (
                   <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
                     {t}
-                    <button
+                    <button type="button"
                       onClick={() => setSelectedTags(prev => prev.filter(x => x !== t))}
                       className="hover:text-rose-400 cursor-pointer text-xs"
                       aria-label={`Remove ${t} tag`}
