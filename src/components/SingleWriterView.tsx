@@ -153,7 +153,7 @@ export default function SingleWriterView({
 
     let loadingIndex = 0;
     const interval = setInterval(() => {
-      setLoadingText(loadingPhrases[loadingIndex % loadingPhrases.length]);
+      setLoadingText(loadingPhrases[loadingIndex % loadingPhrases.length] ?? 'Preparing content...');
       loadingIndex++;
     }, 2400);
 
