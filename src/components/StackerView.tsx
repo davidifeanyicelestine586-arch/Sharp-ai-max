@@ -346,7 +346,7 @@ ${stackedAssets.emailNewsletter}
             </div>
 
             <div className="pt-3 border-t border-slate-800 flex flex-col gap-2">
-              <button
+              <button type="button"
                 id="save-studio-stack"
                 onClick={handleSaveToStudio}
                 disabled={isSaved}
@@ -360,7 +360,7 @@ ${stackedAssets.emailNewsletter}
                 <span>{isSaved ? 'Suite Saved to Studio' : 'Save Suite to Studio'}</span>
               </button>
 
-              <button
+              <button type="button"
                 onClick={handleCopyAll}
                 className="w-full py-2 px-4 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors"
               >
@@ -391,7 +391,7 @@ ${stackedAssets.emailNewsletter}
                 </h3>
               </div>
 
-              <button
+              <button type="button"
                 onClick={() => copyToClipboard(getChannelText(activeWorkspaceTab), activeWorkspaceTab)}
                 className="px-3 py-1.5 rounded-lg bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer text-xs flex items-center gap-1.5 font-semibold"
                 title={`Copy ${activeWorkspaceTab} text`}
