@@ -36,28 +36,28 @@ const STOCK_TEMPLATES: PromptTemplate[] = [
     title: 'PAS (Problem-Agitate-Solve) Copywriter',
     category: 'marketing',
     description: 'Structure social copywriting addressing a core visitor pain point, agitating it, and positioning your solution.',
-    prompt: 'Write a persuasive PAS campaign. Problem: Creators take hours copying a single post into emails, LinkedIn, and threads manually. Agitate: Explain how exhausting, error-prone, and time-wasting this form of manual labor is, taking away from true building. Solve: Introduce Sharp AI - the 5-in-1 Content Studio Stacker that repurposes any idea instantly.'
+    prompt: 'Write a persuasive PAS campaign. Problem: Creators take hours copying a single post into emails, LinkedIn, and threads manually. Agitate: Explain how exhausting, error-prone, and time-wasting this form of manual labor is, taking away from true building. Solve: Introduce the product or workflow being discussed and explain its concrete value without inventing capabilities.'
   },
   {
     id: 'aida-email',
     title: 'AIDA (Attention-Interest-Desire-Action) Pitch',
     category: 'marketing',
     description: 'Acquire high-intent leads using the classic direct-response attention copy format.',
-    prompt: 'Write an AIDA series pitching our local virtualization container manager (Acode & Termux workflow setup). Direct readers to try our free CLI tool.'
+    prompt: 'Write an AIDA series for a fictional developer workflow product. Clearly label the product as fictional and avoid invented pricing, links, or availability.'
   },
   {
     id: 'linkedin-failure',
     title: 'Failure-to-Learning Authenticity',
     category: 'personal branding',
     description: 'Synthesize standard startup or software debugging struggles into an engaging, empathetic story.',
-    prompt: 'Create a narrative detailing how a server went offline during an critical preview build due to incorrect ES Modules path resolutions, how it was isolated, and the 3 clean architectural lessons implemented.'
+    prompt: 'Create a narrative about a fictional software debugging incident involving an ES module path issue. Clearly distinguish the scenario from a real event and extract three architectural lessons.'
   },
   {
     id: 'eli5',
     title: 'Explain Like I\'m 5 (Eli5)',
     category: 'education',
     description: 'Demystify deep tech, cloud run virtual models, or virtualization systems into basic lay terms.',
-    prompt: 'Explain what standard virtualization sandboxing containers are, using the intuitive analogy of a restaurant pantry with separate spice lockers.'
+    prompt: 'Explain virtualization and sandboxed containers using a simple restaurant-pantry analogy with separate storage areas.'
   },
   {
     id: 'concept-analogy',
@@ -71,7 +71,7 @@ const STOCK_TEMPLATES: PromptTemplate[] = [
     title: 'Emergent Tech Trend Audit',
     category: 'technology',
     description: 'Evaluate the commercial impact of AI developer tool chains inside modern setups.',
-    prompt: 'Conduct a tech trend audit on Generative AI agent-to-environment interfaces, highlighting multi-edit file configurations, and predicting local client speeds inside the browser over the next 3 years.'
+    prompt: 'Conduct a technology trend audit on AI agent-to-environment interfaces, distinguishing documented evidence from forecasts and uncertainty.'
   },
 ];
 
