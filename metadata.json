@@ -1,0 +1,8 @@
+{
+  "name": "Sharp AI Max",
+  "description": "Multi-channel content studio for generating blog posts, social threads, and email campaigns from a single concept.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

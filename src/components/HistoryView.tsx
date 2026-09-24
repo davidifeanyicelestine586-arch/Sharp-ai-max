@@ -321,11 +321,11 @@ export default function HistoryView({
                           e.stopPropagation();
                           setOpenMenuId(openMenuId === item.id ? null : item.id);
                         }}
-                        className="p-1 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                        className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
                         title="Draft options"
                         aria-label="Draft options"
                       >
-                        <MoreVertical className="h-3.5 w-3.5" />
+                        <MoreVertical className="h-4 w-4" />
                       </button>
 
                       {/* Quick Actions Dropdown Menu */}
@@ -448,7 +448,7 @@ export default function HistoryView({
                             onUpdateTags?.(selectedItem.id, newTags);
                             setSelectedItem(prev => prev ? { ...prev, tags: newTags } : null);
                           }}
-                          className="hover:text-rose-400 cursor-pointer text-xs leading-none"
+                          className="hover:text-rose-400 cursor-pointer text-xs leading-none p-0.5 rounded hover:bg-indigo-500/30"
                           aria-label={`Remove ${t}`}
                         >
                           ×
@@ -514,7 +514,7 @@ export default function HistoryView({
                 <div className="flex items-center gap-1.5 shrink-0">
                   <button type="button"
                     onClick={() => onCopy(getFullContentForCopy(selectedItem))}
-                    className="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"
+                    className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"
                     title="Copy full draft content"
                     aria-label="Copy full draft content"
                   >
@@ -526,7 +526,7 @@ export default function HistoryView({
                   </button>
                   <button type="button"
                     onClick={() => handleDownload(selectedItem)}
-                    className="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"
+                    className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"
                     title="Download as Markdown (.md)"
                     aria-label="Download as Markdown"
                   >
@@ -534,7 +534,7 @@ export default function HistoryView({
                   </button>
                   <button type="button"
                     onClick={() => exportItemToPDF(selectedItem)}
-                    className="px-3 py-1.5 rounded-lg bg-indigo-600/15 hover:bg-indigo-600/25 border border-indigo-500/30 text-indigo-300 transition-colors cursor-pointer text-xs font-semibold flex items-center gap-1.5"
+                    className="px-3 py-1.5 min-h-[38px] rounded-lg bg-indigo-600/15 hover:bg-indigo-600/25 border border-indigo-500/30 text-indigo-300 transition-colors cursor-pointer text-xs font-semibold flex items-center gap-1.5"
                     title="Export styled PDF"
                   >
                     <FileText className="h-3.5 w-3.5" />
@@ -545,7 +545,7 @@ export default function HistoryView({
                       onDelete(selectedItem.id);
                       setSelectedItem(null);
                     }}
-                    className="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer text-xs"
+                    className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer text-xs"
                     title="Delete item"
                     aria-label="Delete item"
                   >

@@ -49,6 +49,7 @@ export default function SingleWriterView({
   const [customTagText, setCustomTagText] = useState('');
   const [autoSaveStatus, setAutoSaveStatus] = useState('');
   const statusTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Maximum character count budget for input brief
   const MAX_PROMPT_LENGTH = 4000;
@@ -64,6 +65,7 @@ export default function SingleWriterView({
       if (statusTimerRef.current) clearTimeout(statusTimerRef.current);
       statusTimerRef.current = setTimeout(() => setAutoSaveStatus(''), 4000);
       onResetPrepopulated?.();
+      setTimeout(() => textareaRef.current?.focus(), 50);
     }
   }, [prepopulatedPrompt, prepopulatedType, onResetPrepopulated]);
 
@@ -160,6 +162,13 @@ export default function SingleWriterView({
     try {
       const output = await onGenerate(promptInput, contentType);
       setGeneratedText(output);
+      setIsSaved(true);
+      // Auto-archive generated deliverable to Studio history
+      const tagsToUse = selectedTags.length > 0 ? selectedTags : ['Auto-saved'];
+      onAddHistory(promptInput, output, contentType, tagsToUse);
+      setAutoSaveStatus('Generated and auto-archived to Studio drafts');
+      if (statusTimerRef.current) clearTimeout(statusTimerRef.current);
+      statusTimerRef.current = setTimeout(() => setAutoSaveStatus(''), 4000);
     } catch (error: unknown) {
       console.error(error instanceof Error ? error.message : 'Generation failed.');
       setErrorMsg(error instanceof Error ? error.message : 'Content generation request failed. Check server connection and API key.');
@@ -179,12 +188,99 @@ export default function SingleWriterView({
     if (!generatedText) return;
     onAddHistory(promptInput, generatedText, contentType, selectedTags);
     setIsSaved(true);
+    setAutoSaveStatus('Draft version and tags updated in Studio');
+    if (statusTimerRef.current) clearTimeout(statusTimerRef.current);
+    statusTimerRef.current = setTimeout(() => setAutoSaveStatus(''), 4000);
   };
 
   const wordCount = generatedText ? generatedText.trim().split(/\s+/).filter(Boolean).length : 0;
   const readingTimeMin = Math.max(1, Math.ceil(wordCount / 200));
 
   const RenderSocialMockup = () => {
+    if (isGenerating) {
+      return (
+        <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-5 space-y-4 max-w-md mx-auto animate-pulse">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-indigo-500 animate-ping" />
+              <span className="text-[11px] font-mono text-indigo-400 font-semibold">{loadingText}</span>
+            </div>
+            <span className="text-[10px] font-mono text-slate-500 uppercase">{contentType} skeleton</span>
+          </div>
+
+          {contentType === 'blog' ? (
+            <div className="space-y-3 pt-2">
+              <div className="h-6 bg-slate-800 rounded w-4/5" />
+              <div className="h-3 bg-slate-800/60 rounded w-1/3" />
+              <div className="space-y-2 pt-2">
+                <div className="h-3 bg-slate-800/50 rounded w-full" />
+                <div className="h-3 bg-slate-800/50 rounded w-11/12" />
+                <div className="h-3 bg-slate-800/50 rounded w-4/5" />
+              </div>
+              <div className="h-4 bg-slate-800/70 rounded w-1/2 pt-2" />
+              <div className="space-y-2">
+                <div className="h-3 bg-slate-800/50 rounded w-full" />
+                <div className="h-3 bg-slate-800/50 rounded w-5/6" />
+              </div>
+            </div>
+          ) : contentType === 'x' ? (
+            <div className="space-y-3 pt-2">
+              <div className="p-3.5 rounded-lg bg-slate-900 border border-slate-800/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="h-3 bg-slate-800 rounded w-16" />
+                  <div className="h-3 bg-slate-800 rounded w-12" />
+                </div>
+                <div className="h-3 bg-slate-800/50 rounded w-full" />
+                <div className="h-3 bg-slate-800/50 rounded w-4/5" />
+              </div>
+              <div className="p-3.5 rounded-lg bg-slate-900 border border-slate-800/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="h-3 bg-slate-800 rounded w-16" />
+                  <div className="h-3 bg-slate-800 rounded w-12" />
+                </div>
+                <div className="h-3 bg-slate-800/50 rounded w-full" />
+                <div className="h-3 bg-slate-800/50 rounded w-3/4" />
+              </div>
+            </div>
+          ) : contentType === 'email' ? (
+            <div className="space-y-3 pt-2">
+              <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-2">
+                <div className="h-3 bg-indigo-500/30 rounded w-1/4" />
+                <div className="h-4 bg-slate-800 rounded w-3/4" />
+              </div>
+              <div className="space-y-2 pt-1">
+                <div className="h-3 bg-slate-800/50 rounded w-1/3" />
+                <div className="h-3 bg-slate-800/50 rounded w-full" />
+                <div className="h-3 bg-slate-800/50 rounded w-5/6" />
+                <div className="h-3 bg-slate-800/50 rounded w-4/5" />
+              </div>
+              <div className="h-8 bg-indigo-600/30 rounded-lg w-1/2 mx-auto mt-2" />
+            </div>
+          ) : (
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-lg bg-slate-800" />
+                <div className="space-y-1.5 flex-1">
+                  <div className="h-3 bg-slate-800 rounded w-1/3" />
+                  <div className="h-2 bg-slate-800/60 rounded w-1/4" />
+                </div>
+              </div>
+              <div className="space-y-2 pt-1">
+                <div className="h-3 bg-slate-800/50 rounded w-full" />
+                <div className="h-3 bg-slate-800/50 rounded w-11/12" />
+                <div className="h-3 bg-slate-800/50 rounded w-4/5" />
+              </div>
+              <div className="flex gap-1.5 pt-2">
+                <div className="h-4 bg-indigo-500/20 rounded w-12" />
+                <div className="h-4 bg-indigo-500/20 rounded w-16" />
+                <div className="h-4 bg-indigo-500/20 rounded w-14" />
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
     if (!generatedText) {
       return (
         <div className="flex flex-col items-center justify-center h-full p-8 text-center text-slate-500 space-y-3 min-h-[340px]">
@@ -398,6 +494,7 @@ export default function SingleWriterView({
             </div>
             
             <textarea
+              ref={textareaRef}
               id="prompt-input"
               value={promptInput}
               onChange={(e) => setPromptInput(e.target.value.slice(0, MAX_PROMPT_LENGTH))}
@@ -522,7 +619,7 @@ export default function SingleWriterView({
                       {t}
                       <button type="button"
                         onClick={() => setSelectedTags(prev => prev.filter(x => x !== t))}
-                        className="hover:text-rose-400 cursor-pointer text-xs leading-none"
+                        className="hover:text-rose-400 cursor-pointer text-xs leading-none p-0.5 rounded hover:bg-indigo-500/30"
                         aria-label={`Remove ${t} tag`}
                       >
                         ×

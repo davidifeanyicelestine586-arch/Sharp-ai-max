@@ -75,9 +75,38 @@ const STOCK_TEMPLATES: PromptTemplate[] = [
   },
 ];
 
+const VALID_TABS = ['dashboard', 'write', 'stacker', 'prompts', 'history', 'profile'] as const;
+type AppTab = typeof VALID_TABS[number];
+
+const getTabFromHash = (): string => {
+  if (typeof window === 'undefined') return 'dashboard';
+  const hash = window.location.hash.replace(/^#\/?/, '').trim().toLowerCase();
+  return VALID_TABS.includes(hash as AppTab) ? hash : 'dashboard';
+};
+
 export default function App() {
-  // Navigation Routing Tab State
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  // Navigation Routing Tab State synchronized with browser URL hash
+  const [activeTab, setActiveTabState] = useState<string>(getTabFromHash);
+
+  const setActiveTab = (tab: string) => {
+    setActiveTabState(tab);
+    if (typeof window !== 'undefined' && window.location.hash !== `#/${tab}`) {
+      window.location.hash = `#/${tab}`;
+    }
+  };
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const targetTab = getTabFromHash();
+      setActiveTabState(targetTab);
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    // Ensure initial URL hash is present
+    if (window.location.hash !== `#/${activeTab}`) {
+      window.location.hash = `#/${activeTab}`;
+    }
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [activeTab]);
   
   // User Authentication State
   const [user, setUser] = useState<UserProfile>(EMPTY_USER);

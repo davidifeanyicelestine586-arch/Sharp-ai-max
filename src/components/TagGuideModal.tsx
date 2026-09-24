@@ -121,7 +121,7 @@ export default function TagGuideModal({ isOpen, onClose }: TagGuideModalProps) {
           </div>
           <button type="button" 
             onClick={onClose}
-            className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer transition-colors"
+            className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer transition-colors"
             aria-label="Close guide"
           >
             <X className="h-4 w-4" />
