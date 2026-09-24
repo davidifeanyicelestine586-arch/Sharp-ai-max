@@ -100,19 +100,23 @@ export default function StackerView({
       const results = await onStack(ideaInput);
       setStackedAssets(results);
       setActiveWorkspaceTab('blog');
-    } catch (err: any) {
-      console.error(err);
-      setErrorMsg(err?.message || 'Stacking generation failed. Check server connection.');
+    } catch (error: unknown) {
+      console.error(error instanceof Error ? error.message : 'Generation failed.');
+      setErrorMsg(error instanceof Error ? error.message : 'Stacking generation failed. Check server connection.');
     } finally {
       clearInterval(interval);
       setIsStacking(false);
     }
   };
 
-  const copyToClipboard = (text: string, channelKey: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedChannel(channelKey);
-    setTimeout(() => setCopiedChannel(null), 2000);
+  const copyToClipboard = async (text: string, channelKey: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedChannel(channelKey);
+      window.setTimeout(() => setCopiedChannel(null), 2000);
+    } catch {
+      setErrorMsg('Clipboard access was unavailable. Select and copy the text manually.');
+    }
   };
 
   const handleCopyAll = () => {
