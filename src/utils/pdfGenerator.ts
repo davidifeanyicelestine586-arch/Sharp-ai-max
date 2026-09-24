@@ -15,12 +15,12 @@ export function exportItemToPDF(item: HistoryItem) {
   let cursorY = 20;
 
   // Colors
-  const COLOR_PRIMARY = [79, 70, 229]; // Indigo Hex: #4f46e5
-  const COLOR_SECONDARY = [109, 40, 217]; // Purple Hex: #6d28d9
-  const COLOR_TEXT_DARK = [30, 41, 59]; // slate-800
-  const COLOR_TEXT_LIGHT = [100, 116, 139]; // slate-500
-  const COLOR_BG_LIGHT = [248, 250, 252]; // slate-50
-  const COLOR_BORDER = [226, 232, 240]; // slate-200
+  const COLOR_PRIMARY = [79, 70, 229] as const; // Indigo Hex: #4f46e5
+  const COLOR_SECONDARY = [109, 40, 217] as const; // Purple Hex: #6d28d9
+  const COLOR_TEXT_DARK = [30, 41, 59] as const; // slate-800
+  const COLOR_TEXT_LIGHT = [100, 116, 139] as const; // slate-500
+  const COLOR_BG_LIGHT = [248, 250, 252] as const; // slate-50
+  const COLOR_BORDER = [226, 232, 240] as const; // slate-200
 
   // Helper to draw clean page headers & footers
   let pageCount = 1;
