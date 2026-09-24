@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User, 
   Check, 
@@ -20,6 +20,10 @@ export default function ProfileView({ user, onUpgrade, onDowngrade, onUpdateName
   const [editMode, setEditMode] = useState(false);
   const [inputName, setInputName] = useState(user.name);
   const [upgradeSuccess, setUpgradeSuccess] = useState(false);
+
+  useEffect(() => {
+    setInputName(user.name);
+  }, [user.name]);
 
   const handleSaveName = (e: React.FormEvent) => {
     e.preventDefault();

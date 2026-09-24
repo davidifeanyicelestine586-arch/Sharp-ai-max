@@ -90,14 +90,20 @@ export function validateStackResponse(value: unknown): {
   }
 
   if (!Array.isArray(value.xThread) || value.xThread.length < 3 || value.xThread.length > 5 ||
-      value.xThread.some(item => typeof item !== 'string' || !item.trim() || item.length > 280)) {
+      value.xThread.some(item => typeof item !== 'string' || !item.trim())) {
     throw new ValidationError('Model output contains an invalid X thread.');
   }
+
+  // Normalize xThread items: trim whitespace and safely clamp to the 280-char tweet limit
+  const normalizedXThread = (value.xThread as string[]).map(tweet => {
+    const trimmed = tweet.trim();
+    return trimmed.length > 280 ? trimmed.slice(0, 280) : trimmed;
+  });
 
   return {
     blogPost: value.blogPost as string,
     linkedinPost: value.linkedinPost as string,
-    xThread: value.xThread as string[],
+    xThread: normalizedXThread,
     instagramCaption: value.instagramCaption as string,
     emailNewsletter: value.emailNewsletter as string,
   };

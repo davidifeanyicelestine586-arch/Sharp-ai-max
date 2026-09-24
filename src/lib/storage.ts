@@ -96,22 +96,38 @@ export function loadCustomPrompts(): PromptTemplate[] {
 }
 
 export function saveUser(user: UserProfile): void {
-  localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(user));
+  try {
+    localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(user));
+  } catch (err) {
+    console.warn('[Sharp AI Storage] Failed to persist user profile:', err);
+  }
 }
 
 export function saveHistory(history: HistoryItem[]): void {
-  localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(history));
+  try {
+    localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(history));
+  } catch (err) {
+    console.warn('[Sharp AI Storage] Failed to persist history list:', err);
+  }
 }
 
 export function saveCustomPrompts(prompts: PromptTemplate[]): void {
-  localStorage.setItem(STORAGE_KEYS.customPrompts, JSON.stringify(prompts));
+  try {
+    localStorage.setItem(STORAGE_KEYS.customPrompts, JSON.stringify(prompts));
+  } catch (err) {
+    console.warn('[Sharp AI Storage] Failed to persist custom prompts:', err);
+  }
 }
 
 export function clearWorkspaceStorage(): void {
-  localStorage.removeItem(STORAGE_KEYS.user);
-  localStorage.removeItem(STORAGE_KEYS.history);
-  localStorage.removeItem(STORAGE_KEYS.customPrompts);
-  localStorage.removeItem(STORAGE_KEYS.tagGuide);
-  localStorage.removeItem('sharp_ai_single_prompt_autosave');
-  localStorage.removeItem('sharp_ai_single_prompt_autosave_type');
+  try {
+    localStorage.removeItem(STORAGE_KEYS.user);
+    localStorage.removeItem(STORAGE_KEYS.history);
+    localStorage.removeItem(STORAGE_KEYS.customPrompts);
+    localStorage.removeItem(STORAGE_KEYS.tagGuide);
+    localStorage.removeItem('sharp_ai_single_prompt_autosave');
+    localStorage.removeItem('sharp_ai_single_prompt_autosave_type');
+  } catch (err) {
+    console.warn('[Sharp AI Storage] Failed to clear local storage:', err);
+  }
 }

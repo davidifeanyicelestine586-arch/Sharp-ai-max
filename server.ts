@@ -113,13 +113,12 @@ async function startServer() {
   // Security-focused response headers without adding another runtime dependency.
   app.use((_req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
     if (process.env.NODE_ENV === 'production') {
       res.setHeader(
         'Content-Security-Policy',
-        "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; " +
+        "default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; " +
         "script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
         "font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self';"
       );
@@ -174,7 +173,7 @@ Format a thread as a numbered sequence. Each tweet MUST be under 280 characters,
       }
 
       const response = await withAiSlot(() => ai.models.generateContent({
-        model: 'gemini-3.5-flash',
+        model: 'gemini-3.8-flash',
         contents: prompt,
         config: {
           systemInstruction,
@@ -216,7 +215,7 @@ Generate:
 Write clear, useful prose. Avoid unsupported claims and fabricated facts.`;
 
       const response = await withAiSlot(() => ai.models.generateContent({
-        model: 'gemini-3.5-flash',
+        model: 'gemini-3.8-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
