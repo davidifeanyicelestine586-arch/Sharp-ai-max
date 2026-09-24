@@ -22,6 +22,14 @@ type RateBucket = { count: number; resetAt: number };
 const rateBuckets = new Map<string, RateBucket>();
 let activeAiRequests = 0;
 
+const rateBucketCleanup = setInterval(() => {
+  const now = Date.now();
+  for (const [key, bucket] of rateBuckets) {
+    if (now >= bucket.resetAt) rateBuckets.delete(key);
+  }
+}, RATE_WINDOW_MS);
+rateBucketCleanup.unref();
+
 function clientKey(req: Request): string {
   return req.socket.remoteAddress || 'unknown-client';
 }
@@ -108,6 +116,14 @@ async function startServer() {
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    if (process.env.NODE_ENV === 'production') {
+      res.setHeader(
+        'Content-Security-Policy',
+        "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; " +
+        "script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+        "font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self';"
+      );
+    }
     next();
   });
 
