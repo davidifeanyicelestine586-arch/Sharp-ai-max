@@ -229,7 +229,7 @@ export default function HistoryView({
             ].map(type => (
               <button
                 key={type.id}
-                onClick={() => setFilterType(type.id as any)}
+                onClick={() => setFilterType(type.id as PromptCategory)}
                 className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                   filterType === type.id
                     ? 'bg-indigo-600 text-white'
@@ -472,13 +472,13 @@ export default function HistoryView({
                           className="bg-slate-950 border border-slate-800 rounded px-2 py-0.5 text-[10px] focus:outline-none focus:border-indigo-500 text-slate-200 w-24"
                           autoFocus
                         />
-                        <button
+                        <button type="button"
                           onClick={() => handleAddTag(customTagInput)}
                           className="text-[10px] font-bold px-2 py-0.5 bg-indigo-600 rounded text-white cursor-pointer"
                         >
                           Add
                         </button>
-                        <button
+                        <button type="button"
                           onClick={() => setShowAddTagInput(false)}
                           className="text-slate-500 hover:text-slate-300 cursor-pointer text-xs"
                         >
@@ -486,7 +486,7 @@ export default function HistoryView({
                         </button>
                       </div>
                     ) : (
-                      <button
+                      <button type="button"
                         onClick={() => setShowAddTagInput(true)}
                         className="px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-400 hover:text-white cursor-pointer"
                       >
@@ -495,7 +495,7 @@ export default function HistoryView({
                     )}
 
                     {presets.filter(p => !(selectedItem.tags || []).includes(p)).map(p => (
-                      <button
+                      <button type="button"
                         key={p}
                         onClick={() => {
                           const currentTags = selectedItem.tags || [];
@@ -512,7 +512,7 @@ export default function HistoryView({
                 </div>
 
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <button
+                  <button type="button"
                     onClick={() => onCopy(getFullContentForCopy(selectedItem))}
                     className="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"
                     title="Copy full draft content"
@@ -524,7 +524,7 @@ export default function HistoryView({
                       <Copy className="h-4 w-4" />
                     )}
                   </button>
-                  <button
+                  <button type="button"
                     onClick={() => handleDownload(selectedItem)}
                     className="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"
                     title="Download as Markdown (.md)"
@@ -532,7 +532,7 @@ export default function HistoryView({
                   >
                     <Download className="h-4 w-4" />
                   </button>
-                  <button
+                  <button type="button"
                     onClick={() => exportItemToPDF(selectedItem)}
                     className="px-3 py-1.5 rounded-lg bg-indigo-600/15 hover:bg-indigo-600/25 border border-indigo-500/30 text-indigo-300 transition-colors cursor-pointer text-xs font-semibold flex items-center gap-1.5"
                     title="Export styled PDF"
@@ -540,7 +540,7 @@ export default function HistoryView({
                     <FileText className="h-3.5 w-3.5" />
                     <span>PDF</span>
                   </button>
-                  <button
+                  <button type="button"
                     onClick={() => {
                       onDelete(selectedItem.id);
                       setSelectedItem(null);
@@ -581,7 +581,7 @@ export default function HistoryView({
                       <div key={block.id} className="space-y-2 p-4 bg-slate-950 rounded-xl border border-slate-800">
                         <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
                           <span className="text-[10px] font-mono font-bold uppercase text-indigo-400">{block.name}</span>
-                          <button
+                          <button type="button"
                             onClick={() => onCopy(block.content || '')}
                             className="text-[11px] text-slate-400 hover:text-white cursor-pointer flex items-center gap-1 font-medium"
                           >
