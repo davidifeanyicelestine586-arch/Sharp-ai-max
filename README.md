@@ -103,6 +103,11 @@ Sharp-ai-max/
 ├── tsconfig.json
 ├── package.json
 ├── package-lock.json
+├── tests/
+│   └── validation.test.ts
+├── .github/
+│   └── workflows/
+│       └── ci.yml
 ├── .env.example
 └── .gitignore
 ~~~
