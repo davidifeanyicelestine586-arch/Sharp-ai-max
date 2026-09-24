@@ -128,7 +128,7 @@ export default function ProfileView({ user, onUpgrade, onDowngrade, onUpdateName
 
             <div className="space-y-2 pt-2">
               <div className="flex justify-between text-xs">
-                <span className="font-semibold text-slate-300">Monthly Word Budget</span>
+                <span className="font-semibold text-slate-300">Local Preview Credits</span>
                 <span className="font-mono text-slate-400 tabular-nums">{user.creditsUsed.toLocaleString()} / {user.creditsTotal.toLocaleString()} credits used</span>
               </div>
 
