@@ -92,7 +92,9 @@ export default function TagGuideModal({ isOpen, onClose }: TagGuideModalProps) {
     }
   };
 
-  const ActiveIcon = steps[currentStep].icon;
+  const currentStepData = steps[currentStep] ?? steps[0];
+  if (!currentStepData) return null;
+  const ActiveIcon = currentStepData.icon;
 
   return (
     <div 
@@ -113,7 +115,7 @@ export default function TagGuideModal({ isOpen, onClose }: TagGuideModalProps) {
                 Guide {currentStep + 1} of {steps.length}
               </span>
               <h2 id="tag-guide-title" className="text-sm font-bold text-white">
-                {steps[currentStep].title}
+                {currentStepData.title}
               </h2>
             </div>
           </div>
@@ -129,10 +131,10 @@ export default function TagGuideModal({ isOpen, onClose }: TagGuideModalProps) {
         {/* Body */}
         <div className="space-y-3">
           <p className="text-xs text-slate-300 leading-relaxed">
-            {steps[currentStep].description}
+            {currentStepData.description}
           </p>
           <div className="pt-1">
-            {steps[currentStep].content}
+            {currentStepData.content}
           </div>
         </div>
 
