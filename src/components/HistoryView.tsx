@@ -229,7 +229,7 @@ export default function HistoryView({
             ].map(type => (
               <button type="button"
                 key={type.id}
-                onClick={() => setFilterType(type.id as PromptCategory)}
+                onClick={() => setFilterType(type.id as 'all' | 'single' | 'stacked' | 'favorites')}
                 className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                   filterType === type.id
                     ? 'bg-indigo-600 text-white'
