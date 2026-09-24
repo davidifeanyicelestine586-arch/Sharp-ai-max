@@ -25,10 +25,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
-
-      - name: Inspect generated lockfile
-        run: git diff -- package-lock.json
+        run: npm ci
 
       - name: Typecheck
         run: npm run typecheck
