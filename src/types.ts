@@ -1,7 +1,4 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
+export type PromptCategory = 'marketing' | 'business' | 'education' | 'technology' | 'personal branding';
 
 export type ContentType = 'blog' | 'linkedin' | 'x' | 'instagram' | 'facebook' | 'email';
 
@@ -9,7 +6,7 @@ export interface PromptTemplate {
   id: string;
   title: string;
   prompt: string;
-  category: 'marketing' | 'business' | 'education' | 'technology' | 'personal branding';
+  category: PromptCategory;
   description: string;
 }
 
@@ -19,7 +16,7 @@ export interface HistoryItem {
   title: string;
   input: string;
   contentType?: ContentType; // for single
-  category?: string; // for prompt template used if any
+  category?: string;
   data: {
     blogPost?: string;
     linkedinPost?: string;

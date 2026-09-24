@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React from 'react';
 import { 
   Layers, 
@@ -104,7 +99,7 @@ export default function DashboardView({
               {onOpenTagGuide && (
                 <>
                   {' '}Need help organizing your campaign drafts? Read the{' '}
-                  <button 
+                  <button type="button" 
                     onClick={onOpenTagGuide} 
                     className="text-indigo-400 hover:text-indigo-300 font-semibold underline underline-offset-4 cursor-pointer focus:outline-none"
                   >
@@ -115,7 +110,7 @@ export default function DashboardView({
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
-            <button
+            <button type="button"
               id="cta-stacker"
               onClick={() => setActiveTab('stacker')}
               className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold leading-none shadow-sm transition-all duration-200 flex items-center gap-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-400"
@@ -262,7 +257,7 @@ export default function DashboardView({
           </div>
 
           <div className="space-y-2.5 flex-1 pt-1">
-            <button
+            <button type="button"
               onClick={() => setActiveTab('write')}
               className="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-left transition-colors cursor-pointer group"
             >
@@ -278,7 +273,7 @@ export default function DashboardView({
               <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-slate-300 transition-transform group-hover:translate-x-0.5" />
             </button>
 
-            <button
+            <button type="button"
               onClick={() => setActiveTab('prompts')}
               className="w-full flex items-center justify-between p-3.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-left transition-colors cursor-pointer group"
             >
@@ -297,7 +292,7 @@ export default function DashboardView({
 
           <div className="pt-3 border-t border-slate-800/80 text-xs text-slate-400 flex items-center justify-between font-mono">
             <span>Quota resets monthly</span>
-            <button 
+            <button type="button" 
               onClick={() => setActiveTab('profile')}
               className="text-indigo-400 hover:text-indigo-300 font-semibold underline cursor-pointer"
             >
@@ -314,7 +309,7 @@ export default function DashboardView({
             <h3 className="text-sm font-bold text-white">Recent Studio Drafts</h3>
             <p className="text-xs text-slate-400">Directly inspect, copy, or export recently produced outputs</p>
           </div>
-          <button
+          <button type="button"
             onClick={() => setActiveTab('history')}
             className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 cursor-pointer focus:outline-none"
           >
@@ -326,7 +321,7 @@ export default function DashboardView({
         {stats.recentActivity.length === 0 ? (
           <div className="p-10 text-center rounded-xl bg-slate-950/40 border border-slate-800/60 space-y-3">
             <p className="text-xs text-slate-400">No campaigns saved to storage yet.</p>
-            <button
+            <button type="button"
               onClick={() => setActiveTab('stacker')}
               className="px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer"
             >
@@ -367,7 +362,7 @@ export default function DashboardView({
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
-                    <button
+                    <button type="button"
                       onClick={() => exportItemToPDF(item)}
                       className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-indigo-400 hover:text-indigo-300 border border-slate-800 cursor-pointer text-xs"
                       title="Export as PDF document"
@@ -375,7 +370,7 @@ export default function DashboardView({
                     >
                       <FileText className="h-4 w-4" />
                     </button>
-                    <button
+                    <button type="button"
                       onClick={() => onCopy(previewText)}
                       className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 cursor-pointer text-xs"
                       title="Copy preview text"
@@ -387,7 +382,7 @@ export default function DashboardView({
                         <Copy className="h-4 w-4" />
                       )}
                     </button>
-                    <button
+                    <button type="button"
                       onClick={() => onDelete(item.id)}
                       className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-rose-400 border border-slate-800 cursor-pointer text-xs"
                       title="Delete draft"
@@ -395,7 +390,7 @@ export default function DashboardView({
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
-                    <button
+                    <button type="button"
                       onClick={() => setActiveTab('history')}
                       className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-indigo-400 hover:text-indigo-300 border border-slate-800 cursor-pointer text-xs font-semibold"
                     >

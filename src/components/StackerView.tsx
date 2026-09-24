@@ -1,9 +1,5 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useState, useEffect } from 'react';
+import { ContentType } from '../types';
 import { 
   Sparkles, 
   Layers, 
@@ -18,7 +14,6 @@ import {
   Mail,
   Download
 } from 'lucide-react';
-import { ContentType } from '../types';
 
 interface StackerViewProps {
   onStack: (idea: string) => Promise<{
@@ -98,7 +93,7 @@ export default function StackerView({
 
     let stepIndex = 0;
     const interval = setInterval(() => {
-      setLoadingStep(loadingSteps[stepIndex % loadingSteps.length]);
+      setLoadingStep(loadingSteps[stepIndex % loadingSteps.length] ?? 'Preparing content stack...');
       stepIndex++;
     }, 2400);
 
@@ -106,19 +101,23 @@ export default function StackerView({
       const results = await onStack(ideaInput);
       setStackedAssets(results);
       setActiveWorkspaceTab('blog');
-    } catch (err: any) {
-      console.error(err);
-      setErrorMsg(err?.message || 'Stacking generation failed. Check server connection.');
+    } catch (error: unknown) {
+      console.error(error instanceof Error ? error.message : 'Generation failed.');
+      setErrorMsg(error instanceof Error ? error.message : 'Stacking generation failed. Check server connection.');
     } finally {
       clearInterval(interval);
       setIsStacking(false);
     }
   };
 
-  const copyToClipboard = (text: string, channelKey: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedChannel(channelKey);
-    setTimeout(() => setCopiedChannel(null), 2000);
+  const copyToClipboard = async (text: string, channelKey: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedChannel(channelKey);
+      window.setTimeout(() => setCopiedChannel(null), 2000);
+    } catch {
+      setErrorMsg('Clipboard access was unavailable. Select and copy the text manually.');
+    }
   };
 
   const handleCopyAll = () => {
@@ -222,7 +221,7 @@ ${stackedAssets.emailNewsletter}
           <span className="text-xs font-mono text-slate-500 tabular-nums">
             {ideaInput.length}/4000 characters
           </span>
-          <button
+          <button type="button"
             id="activate-stacker-button"
             onClick={handleStack}
             disabled={isStacking}
@@ -264,7 +263,7 @@ ${stackedAssets.emailNewsletter}
                 const Icon = chan.icon;
                 const isSelected = activeWorkspaceTab === chan.id;
                 return (
-                  <button
+                  <button type="button"
                     key={chan.id}
                     onClick={() => setActiveWorkspaceTab(chan.id as ContentType)}
                     className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-colors cursor-pointer ${
@@ -297,7 +296,7 @@ ${stackedAssets.emailNewsletter}
                 {['Draft', 'Final', 'Q1-Campaign'].map(t => {
                   const isSelected = selectedTags.includes(t);
                   return (
-                    <button
+                    <button type="button"
                       key={t}
                       onClick={() => {
                         if (isSelected) {
@@ -319,7 +318,7 @@ ${stackedAssets.emailNewsletter}
                 {selectedTags.filter(t => !['Draft', 'Final', 'Q1-Campaign'].includes(t)).map(t => (
                   <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
                     {t}
-                    <button
+                    <button type="button"
                       onClick={() => setSelectedTags(prev => prev.filter(x => x !== t))}
                       className="hover:text-rose-400 cursor-pointer text-xs"
                       aria-label={`Remove ${t} tag`}
@@ -352,7 +351,7 @@ ${stackedAssets.emailNewsletter}
             </div>
 
             <div className="pt-3 border-t border-slate-800 flex flex-col gap-2">
-              <button
+              <button type="button"
                 id="save-studio-stack"
                 onClick={handleSaveToStudio}
                 disabled={isSaved}
@@ -366,7 +365,7 @@ ${stackedAssets.emailNewsletter}
                 <span>{isSaved ? 'Suite Saved to Studio' : 'Save Suite to Studio'}</span>
               </button>
 
-              <button
+              <button type="button"
                 onClick={handleCopyAll}
                 className="w-full py-2 px-4 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors"
               >
@@ -397,7 +396,7 @@ ${stackedAssets.emailNewsletter}
                 </h3>
               </div>
 
-              <button
+              <button type="button"
                 onClick={() => copyToClipboard(getChannelText(activeWorkspaceTab), activeWorkspaceTab)}
                 className="px-3 py-1.5 rounded-lg bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer text-xs flex items-center gap-1.5 font-semibold"
                 title={`Copy ${activeWorkspaceTab} text`}

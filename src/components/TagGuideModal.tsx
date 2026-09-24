@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useState, useEffect } from 'react';
 import { 
   X, 
@@ -97,7 +92,9 @@ export default function TagGuideModal({ isOpen, onClose }: TagGuideModalProps) {
     }
   };
 
-  const ActiveIcon = steps[currentStep].icon;
+  const currentStepData = steps[currentStep] ?? steps[0];
+  if (!currentStepData) return null;
+  const ActiveIcon = currentStepData.icon;
 
   return (
     <div 
@@ -118,11 +115,11 @@ export default function TagGuideModal({ isOpen, onClose }: TagGuideModalProps) {
                 Guide {currentStep + 1} of {steps.length}
               </span>
               <h2 id="tag-guide-title" className="text-sm font-bold text-white">
-                {steps[currentStep].title}
+                {currentStepData.title}
               </h2>
             </div>
           </div>
-          <button 
+          <button type="button" 
             onClick={onClose}
             className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer transition-colors"
             aria-label="Close guide"
@@ -134,10 +131,10 @@ export default function TagGuideModal({ isOpen, onClose }: TagGuideModalProps) {
         {/* Body */}
         <div className="space-y-3">
           <p className="text-xs text-slate-300 leading-relaxed">
-            {steps[currentStep].description}
+            {currentStepData.description}
           </p>
           <div className="pt-1">
-            {steps[currentStep].content}
+            {currentStepData.content}
           </div>
         </div>
 
@@ -156,14 +153,14 @@ export default function TagGuideModal({ isOpen, onClose }: TagGuideModalProps) {
 
           <div className="flex items-center gap-2">
             {currentStep > 0 && (
-              <button
+              <button type="button"
                 onClick={() => setCurrentStep(prev => prev - 1)}
                 className="px-3 py-1.5 border border-slate-800 bg-slate-950 hover:bg-slate-850 text-slate-400 hover:text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors"
               >
                 Back
               </button>
             )}
-            <button
+            <button type="button"
               onClick={handleNext}
               className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors"
             >

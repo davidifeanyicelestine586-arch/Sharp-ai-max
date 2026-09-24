@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Sparkles, 
@@ -22,7 +17,7 @@ import {
   Clock,
   RotateCcw
 } from 'lucide-react';
-import { ContentType, PromptTemplate } from '../types';
+import { ContentType, PromptCategory, PromptTemplate } from '../types';
 
 interface SingleWriterViewProps {
   prompts: PromptTemplate[];
@@ -158,16 +153,16 @@ export default function SingleWriterView({
 
     let loadingIndex = 0;
     const interval = setInterval(() => {
-      setLoadingText(loadingPhrases[loadingIndex % loadingPhrases.length]);
+      setLoadingText(loadingPhrases[loadingIndex % loadingPhrases.length] ?? 'Preparing content...');
       loadingIndex++;
     }, 2400);
 
     try {
       const output = await onGenerate(promptInput, contentType);
       setGeneratedText(output);
-    } catch (err: any) {
-      console.error(err);
-      setErrorMsg(err?.message || 'Content generation request failed. Check server connection and API key.');
+    } catch (error: unknown) {
+      console.error(error instanceof Error ? error.message : 'Generation failed.');
+      setErrorMsg(error instanceof Error ? error.message : 'Content generation request failed. Check server connection and API key.');
     } finally {
       clearInterval(interval);
       setIsGenerating(false);
@@ -216,17 +211,17 @@ export default function SingleWriterView({
               </div>
               <div>
                 <div className="flex items-center gap-1.5 font-semibold text-white text-xs">
-                  <span>Author Preview</span>
+                  <span>Channel Preview</span>
                   <span className="text-[10px] bg-slate-800 text-slate-400 px-1 py-0.2 rounded font-mono">1st</span>
                 </div>
-                <p className="text-[11px] text-slate-400">Founder &amp; Creator • 1h • Edited</p>
+                <p className="text-[11px] text-slate-400">Preview profile • Just now</p>
               </div>
             </div>
             <div className="whitespace-pre-line text-slate-200 text-xs leading-relaxed">
               {cleanedText}
             </div>
             <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-500 select-none">
-              <span>Feed Engagement Preview</span>
+              <span>LinkedIn-style preview</span>
               <span className="font-mono text-[10px]">LinkedIn Standard</span>
             </div>
           </div>
@@ -241,17 +236,17 @@ export default function SingleWriterView({
               </div>
               <div>
                 <div className="font-bold text-white text-xs flex items-center gap-1">
-                  <span>Studio Preview</span>
+                  <span>Channel Preview</span>
                   <span className="text-[10px] text-indigo-400 font-semibold font-mono">✓</span>
                 </div>
-                <p className="text-[11px] text-slate-500">@creator_studio</p>
+                <p className="text-[11px] text-slate-500">channel-preview</p>
               </div>
             </div>
             <div className="whitespace-pre-line text-slate-200 text-xs leading-relaxed font-sans">
               {cleanedText}
             </div>
             <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 font-mono select-none">
-              <span>Thread Format</span>
+              <span>X-style thread preview</span>
               <span>{cleanedText.length} characters</span>
             </div>
           </div>
@@ -321,7 +316,7 @@ export default function SingleWriterView({
                 const Icon = p.icon;
                 const isSelected = contentType === p.id;
                 return (
-                  <button
+                  <button type="button"
                     key={p.id}
                     onClick={() => {
                       setContentType(p.id);
@@ -348,9 +343,9 @@ export default function SingleWriterView({
               <label className="text-xs font-semibold text-slate-300">Prompt Templates</label>
               <div className="flex gap-1 overflow-x-auto max-w-[280px] no-scrollbar">
                 {categories.map(c => (
-                  <button
+                  <button type="button"
                     key={c.id}
-                    onClick={() => setSelectedCategory(c.id as any)}
+                    onClick={() => setSelectedCategory(c.id as PromptCategory)}
                     className={`px-2 py-0.5 text-[10px] font-mono font-semibold uppercase tracking-wider rounded-md transition-colors cursor-pointer ${
                       selectedCategory === c.id 
                         ? 'bg-indigo-600 text-white' 
@@ -368,7 +363,7 @@ export default function SingleWriterView({
                 <div className="text-center text-xs text-slate-500 py-6">No templates in this category.</div>
               ) : (
                 filteredTemplates.map(tpl => (
-                  <button
+                  <button type="button"
                     key={tpl.id}
                     onClick={() => handleApplyTemplate(tpl)}
                     className="w-full flex items-center justify-between p-2 rounded-lg bg-slate-900 hover:bg-slate-850 border border-slate-800/80 text-left transition-colors group cursor-pointer"
@@ -419,7 +414,7 @@ export default function SingleWriterView({
           )}
 
           {/* Submit Trigger */}
-          <button
+          <button type="button"
             id="generate-single-button"
             onClick={handleGenerate}
             disabled={isGenerating}
@@ -458,7 +453,7 @@ export default function SingleWriterView({
 
             {generatedText && (
               <div className="flex items-center gap-2">
-                <button
+                <button type="button"
                   onClick={handleCopy}
                   className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors cursor-pointer text-xs flex items-center gap-1 font-semibold"
                   title="Copy to clipboard"
@@ -476,7 +471,7 @@ export default function SingleWriterView({
                     </>
                   )}
                 </button>
-                <button
+                <button type="button"
                   id="save-draft-button"
                   onClick={handleSaveToHistory}
                   disabled={isSaved}
@@ -503,7 +498,7 @@ export default function SingleWriterView({
                   {['Draft', 'Final', 'Q1-Campaign'].map(t => {
                     const isSelected = selectedTags.includes(t);
                     return (
-                      <button
+                      <button type="button"
                         key={t}
                         onClick={() => {
                           if (isSelected) {
@@ -525,7 +520,7 @@ export default function SingleWriterView({
                   {selectedTags.filter(t => !['Draft', 'Final', 'Q1-Campaign'].includes(t)).map(t => (
                     <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
                       {t}
-                      <button
+                      <button type="button"
                         onClick={() => setSelectedTags(prev => prev.filter(x => x !== t))}
                         className="hover:text-rose-400 cursor-pointer text-xs leading-none"
                         aria-label={`Remove ${t} tag`}

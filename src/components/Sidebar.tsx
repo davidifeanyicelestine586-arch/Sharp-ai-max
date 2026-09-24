@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, 
@@ -62,7 +57,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, theme
           </div>
         </div>
         {isOpen && (
-          <button 
+          <button type="button" 
             onClick={() => setIsOpen(false)} 
             className="md:hidden p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 transition-colors"
             aria-label="Close navigation"
@@ -78,7 +73,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, theme
           const Icon = item.icon;
           const isActive = activeTab === item.id;
           return (
-            <button
+            <button type="button"
               id={`nav-item-${item.id}`}
               key={item.id}
               onClick={() => {
@@ -105,7 +100,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, theme
 
       {/* Theme Toggler */}
       <div className="px-3 py-3 border-t border-slate-800 shrink-0">
-        <button
+        <button type="button"
           id="theme-toggler"
           onClick={onToggleTheme}
           className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300 transition-colors cursor-pointer"
@@ -174,7 +169,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, theme
                 <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
               </div>
             </div>
-            <button 
+            <button type="button" 
               id="logout-button"
               onClick={onLogout}
               className="text-[11px] font-semibold text-slate-400 hover:text-rose-400 transition-colors cursor-pointer px-2 py-1 rounded hover:bg-slate-900"
@@ -199,7 +194,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, theme
             Sharp AI
           </span>
         </div>
-        <button 
+        <button type="button" 
           id="mobile-menu-toggle"
           onClick={() => setIsOpen(true)}
           className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 transition-colors"
