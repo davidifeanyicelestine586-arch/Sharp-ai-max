@@ -25,10 +25,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
-
-      - name: Inspect dependency lock entries
-        run: node -e "const l=require('./package-lock.json'); console.log(JSON.stringify({root:l.packages[''],react:l.packages['node_modules/@types/react'],reactDom:l.packages['node_modules/@types/react-dom'],csstype:l.packages['node_modules/csstype']},null,2))"
+        run: npm ci
 
       - name: Typecheck
         run: npm run typecheck
