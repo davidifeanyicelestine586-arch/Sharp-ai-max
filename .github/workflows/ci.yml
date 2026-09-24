@@ -2,12 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [main, "hardening/**", "docs/**"]
+    branches: [main, "hardening/**", "docs/**", "security/**"]
   pull_request:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   quality:
@@ -26,6 +26,23 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Synchronize lockfile
+        if: github.event_name == 'push' && github.ref == 'refs/heads/security/dependency-hardening'
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+
+      - name: Commit synchronized lockfile
+        if: github.event_name == 'push' && github.ref == 'refs/heads/security/dependency-hardening'
+        run: |
+          if git diff --quiet -- package-lock.json; then
+            echo "Lockfile already synchronized."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "chore(deps): synchronize dependency lockfile"
+            git push origin HEAD:\${GITHUB_REF_NAME}
+          fi
 
       - name: Typecheck
         run: npm run typecheck
