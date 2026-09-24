@@ -39,6 +39,10 @@ function isUserProfile(value: unknown): value is UserProfile {
     typeof user.email === 'string' &&
     typeof user.name === 'string' &&
     (user.tier === 'free' || user.tier === 'pro') &&
+    typeof user.creditsTotal === 'number' &&
+    typeof user.creditsUsed === 'number' &&
+    typeof user.wordCountGenerated === 'number' &&
+    typeof user.stackRuns === 'number' &&
     Number.isFinite(user.creditsTotal) &&
     Number.isFinite(user.creditsUsed) &&
     Number.isFinite(user.wordCountGenerated) &&
