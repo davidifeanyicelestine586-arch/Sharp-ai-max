@@ -240,18 +240,13 @@ export default function App() {
   };
 
   const handleDeployPromptInEditor = (promptTpl: PromptTemplate) => {
-    // Navigate straight to Single AI writing board
+    setPrepopulatedPrompt(promptTpl.prompt);
+    if (promptTpl.category === 'marketing') setPrepopulatedType('facebook');
+    else if (promptTpl.category === 'personal branding') setPrepopulatedType('linkedin');
+    else if (promptTpl.category === 'business') setPrepopulatedType('email');
+    else if (promptTpl.category === 'education') setPrepopulatedType('blog');
+    else setPrepopulatedType('linkedin');
     setActiveTab('write');
-    // Pre-populate input can be handled elegantly by single editor. 
-    // To feed input into Single Writer, we'll let SingleWriterView evaluate properties natively.
-    // We achieve this dynamically by dispatching template selections
-    const promptInput = document.getElementById('prompt-input') as HTMLTextAreaElement | null;
-    if (promptInput) {
-      promptInput.value = promptTpl.prompt;
-      // Trigger a synthetic input event so React state updates
-      const event = new Event('input', { bubbles: true });
-      promptInput.dispatchEvent(event);
-    }
   };
 
   // Actions: Single Content Generation calling our server endpoint proxy

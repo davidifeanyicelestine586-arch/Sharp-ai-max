@@ -16,16 +16,12 @@ import {
   PenTool, 
   X,
   FileText,
-  Linkedin,
-  Twitter,
-  Mail,
   MoreVertical,
-  ChevronRight,
-  AlertCircle,
   Star,
-  RefreshCw
+  RefreshCw,
+  FolderOpen
 } from 'lucide-react';
-import { HistoryItem, ContentType } from '../types';
+import { HistoryItem } from '../types';
 import { exportItemToPDF } from '../utils/pdfGenerator';
 
 interface HistoryViewProps {
@@ -75,14 +71,31 @@ export default function HistoryView({
     setShowAddTagInput(false);
   };
 
-  // Get all unique tags from active history items to populate tag filter choices
+  // Get all unique tags
   const allUniqueTags = Array.from(new Set(
     history.reduce<string[]>((acc, item) => [...acc, ...(item.tags || [])], [])
   ));
 
+  // Comprehensive deep search across title, input, and all generated outputs
   const filteredHistory = history.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          item.input.toLowerCase().includes(searchQuery.toLowerCase());
+    const q = searchQuery.toLowerCase().trim();
+    let matchesSearch = true;
+    if (q) {
+      const contentDump = [
+        item.title,
+        item.input,
+        item.data.singleOutput || '',
+        item.data.blogPost || '',
+        item.data.linkedinPost || '',
+        (item.data.xThread || []).join(' '),
+        item.data.instagramCaption || '',
+        item.data.emailNewsletter || '',
+        item.data.facebookPost || '',
+      ].join(' ').toLowerCase();
+
+      matchesSearch = contentDump.includes(q);
+    }
+
     const matchesType = filterType === 'all' || 
                         (filterType === 'favorites' ? item.isFavorite : item.type === filterType);
     const matchesTag = selectedTagFilter === 'all' || (item.tags || []).includes(selectedTagFilter);
@@ -90,19 +103,19 @@ export default function HistoryView({
   });
 
   const handleDownload = (item: HistoryItem) => {
-    let contentString = `Title: ${item.title}\n`;
-    contentString += `Date: ${new Date(item.createdAt).toLocaleString()}\n`;
-    contentString += `Original Input Concept: "${item.input}"\n`;
-    contentString += `--------------------------------------------------\n\n`;
+    let contentString = `# ${item.title}\n\n`;
+    contentString += `> Created: ${new Date(item.createdAt).toLocaleString()}\n`;
+    contentString += `> Source Concept: "${item.input}"\n\n`;
+    contentString += `---\n\n`;
 
     if (item.type === 'single') {
       contentString += item.data.singleOutput || '';
     } else {
-      contentString += `=== 1. BLOG POST ===\n${item.data.blogPost || ''}\n\n`;
-      contentString += `=== 2. LINKEDIN POST ===\n${item.data.linkedinPost || ''}\n\n`;
-      contentString += `=== 3. X THREAD ===\n${(item.data.xThread || []).join('\n\n')}\n\n`;
-      contentString += `=== 4. INSTAGRAM CAPTION ===\n${item.data.instagramCaption || ''}\n\n`;
-      contentString += `=== 5. EMAIL NEWSLETTER ===\n${item.data.emailNewsletter || ''}\n`;
+      contentString += `## 1. SEO Blog Post\n\n${item.data.blogPost || ''}\n\n`;
+      contentString += `## 2. LinkedIn Post\n\n${item.data.linkedinPost || ''}\n\n`;
+      contentString += `## 3. X (Twitter) Thread\n\n${(item.data.xThread || []).map((t, idx) => `### Tweet ${idx + 1}\n${t}`).join('\n\n')}\n\n`;
+      contentString += `## 4. Instagram Caption\n\n${item.data.instagramCaption || ''}\n\n`;
+      contentString += `## 5. Email Newsletter\n\n${item.data.emailNewsletter || ''}\n`;
     }
 
     const blob = new Blob([contentString], { type: 'text/markdown;charset=utf-8;' });
@@ -118,66 +131,69 @@ export default function HistoryView({
   const getFormatBadge = (item: HistoryItem) => {
     if (item.type === 'stacked') {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-bold rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
           <Layers className="h-2.5 w-2.5" /> Stacked
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">
-        <PenTool className="h-2.5 w-2.5" /> {item.contentType}
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-bold rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 uppercase">
+        <PenTool className="h-2.5 w-2.5" /> {item.contentType || 'Single'}
       </span>
     );
   };
 
   const getFullContentForCopy = (item: HistoryItem): string => {
     if (item.type === 'single') return item.data.singleOutput || '';
-    return `[BLOG]\n${item.data.blogPost || ''}\n\n[LINKEDIN]\n${item.data.linkedinPost || ''}\n\n[X THREAD]\n${(item.data.xThread || []).join('\n\n')}\n\n[INSTAGRAM]\n${item.data.instagramCaption || ''}\n\n[EMAIL]\n${item.data.emailNewsletter || ''}`;
+    return `[BLOG POST]\n${item.data.blogPost || ''}\n\n[LINKEDIN POST]\n${item.data.linkedinPost || ''}\n\n[X THREAD]\n${(item.data.xThread || []).join('\n\n')}\n\n[INSTAGRAM CAPTION]\n${item.data.instagramCaption || ''}\n\n[EMAIL NEWSLETTER]\n${item.data.emailNewsletter || ''}`;
   };
 
   return (
-    <div className="space-y-8 animate-fade-in text-slate-100">
+    <div className="space-y-6 md:space-y-8 animate-fade-in text-slate-100">
       {/* Intro Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20">
-            <History className="h-3.5 w-3.5 shrink-0" />
-            Workspace Storage
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono font-semibold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md">
+              Studio Archive
+            </span>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl md:text-3xl font-display font-extrabold tracking-tight">Content Studio Archive</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+              Drafts &amp; Campaign History
+            </h1>
             {onOpenTagGuide && (
               <button
                 onClick={onOpenTagGuide}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-full border border-indigo-500/25 transition-colors cursor-pointer select-none active:scale-95"
+                className="text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-4 cursor-pointer font-medium"
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
-                Onboarding Guide
+                Tag Guide &rarr;
               </button>
             )}
           </div>
-          <p className="text-xs md:text-sm text-slate-400">
-            Review, copy, export, or tidy up any marketing campaigns generated in this workspace.
+          <p className="text-xs md:text-sm text-slate-400 max-w-xl">
+            Inspect, search, copy, and export any draft or multi-channel stack generated in this workspace.
           </p>
         </div>
 
         {history.length > 0 && (
-          <div className="relative">
+          <div className="shrink-0">
             {showClearConfirm ? (
-              <div className="flex items-center gap-2 p-1.5 bg-rose-500/10 border border-rose-500/25 rounded-xl animate-fade-in">
-                <span className="text-[10px] font-bold text-rose-400 px-2">Clear all drafts permanently?</span>
+              <div className="flex items-center gap-2 p-2 bg-rose-500/10 border border-rose-500/30 rounded-xl">
+                <span className="text-xs text-rose-300 font-medium">Delete all history items?</span>
                 <button
                   onClick={() => {
                     onClearAll();
                     setShowClearConfirm(false);
+                    setSelectedItem(null);
                   }}
-                  className="px-2.5 py-1 rounded-md bg-rose-600 hover:bg-rose-500 text-slate-100 text-[10px] font-extrabold cursor-pointer transition-colors"
+                  className="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold cursor-pointer transition-colors"
                 >
-                  Yes, Clear
+                  Confirm Delete
                 </button>
                 <button
                   onClick={() => setShowClearConfirm(false)}
-                  className="px-2.5 py-1 rounded-md bg-slate-850 hover:bg-slate-800 text-slate-350 text-[10px] font-bold cursor-pointer transition-colors border border-slate-800"
+                  className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
@@ -185,44 +201,44 @@ export default function HistoryView({
             ) : (
               <button
                 onClick={() => setShowClearConfirm(true)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-900 text-slate-400 hover:text-rose-400 text-xs font-bold leading-none cursor-pointer filter hover:border-slate-850 transition-all"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-rose-400 text-xs font-semibold cursor-pointer transition-colors"
               >
-                <Trash2 className="h-4 w-4 shrink-0" />
-                <span>Empty Workspace Storage</span>
+                <Trash2 className="h-4 w-4" />
+                <span>Clear Archive</span>
               </button>
             )}
           </div>
         )}
       </div>
 
-      {/* Sorting bar & search */}
-      <div className="space-y-4">
-        <div className="flex flex-col md:flex-row items-center gap-4 justify-between bg-slate-950/40 p-4 rounded-2xl border border-slate-900/60 shadow-sm shrink-0">
-          <div className="relative w-full md:max-w-xs">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-650 shrink-0 select-none" />
+      {/* Filter and Search Bar */}
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row items-center gap-3 justify-between bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+          <div className="relative w-full sm:max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 shrink-0 select-none pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search campaign text or concept..."
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-950 text-slate-200 border border-slate-900 rounded-xl text-xs focus:outline-none focus:border-indigo-500/50 placeholder-slate-700 transition-colors"
+              placeholder="Search concepts or generated text..."
+              className="w-full pl-9 pr-3 py-2 bg-slate-950 text-slate-200 border border-slate-800 rounded-xl text-xs focus:outline-none focus:border-indigo-500 placeholder-slate-600 transition-colors"
             />
           </div>
 
-          <div className="flex gap-1.5 py-0.5">
+          <div className="flex gap-1.5 w-full sm:w-auto overflow-x-auto no-scrollbar">
             {[
               { id: 'all', label: 'All Drafts' },
               { id: 'single', label: 'Single Post' },
-              { id: 'stacked', label: 'Repurposed Stacks' },
-              { id: 'favorites', label: '★ Favorites' },
+              { id: 'stacked', label: 'Stacked Suites' },
+              { id: 'favorites', label: '★ Starred' },
             ].map(type => (
               <button
                 key={type.id}
                 onClick={() => setFilterType(type.id as any)}
-                className={`px-3 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                   filterType === type.id
-                    ? 'bg-indigo-600 text-slate-100 font-extrabold'
-                    : 'bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200'
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800'
                 }`}
               >
                 {type.label}
@@ -233,14 +249,14 @@ export default function HistoryView({
 
         {/* Dynamic Tag Filters */}
         {allUniqueTags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 px-4 py-2.5 bg-slate-950/20 rounded-2xl border border-slate-900/60 transition-all">
-            <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider font-mono mr-1.5 select-none">Filter by tag:</span>
+          <div className="flex flex-wrap items-center gap-1.5 px-3.5 py-2 bg-slate-900/40 rounded-xl border border-slate-800/80 text-xs">
+            <span className="font-mono text-[11px] text-slate-500 mr-1 uppercase">Filter by tag:</span>
             <button
               onClick={() => setSelectedTagFilter('all')}
-              className={`px-2.5 py-1 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+              className={`px-2 py-0.5 text-[11px] font-mono font-medium rounded-md transition-colors cursor-pointer ${
                 selectedTagFilter === 'all'
                   ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
-                  : 'bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-950'
+                  : 'bg-slate-950 text-slate-400 border border-slate-800 hover:text-white'
               }`}
             >
               All Tags
@@ -249,10 +265,10 @@ export default function HistoryView({
               <button
                 key={tag}
                 onClick={() => setSelectedTagFilter(tag)}
-                className={`px-2.5 py-1 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-2 py-0.5 text-[11px] font-mono font-medium rounded-md transition-colors cursor-pointer ${
                   selectedTagFilter === tag
                     ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
-                    : 'bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-950'
+                    : 'bg-slate-950 text-slate-400 border border-slate-800 hover:text-white'
                 }`}
               >
                 {tag}
@@ -262,16 +278,16 @@ export default function HistoryView({
         )}
       </div>
 
-      {/* Main Studio archive area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left column - items list */}
-        <div className="lg:col-span-5 space-y-3.5 product-drafts-list max-h-[600px] overflow-y-auto pr-1">
+      {/* Two-Column Master-Detail Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
+        {/* Left Column: Drafts List */}
+        <div className="lg:col-span-5 space-y-3 max-h-[640px] overflow-y-auto pr-1">
           {filteredHistory.length === 0 ? (
-            <div className="p-12 text-center rounded-2xl bg-slate-950/20 border border-slate-950/40 space-y-3">
-              <span className="text-xl">🗂️</span>
-              <h4 className="text-sm font-semibold text-slate-300">No campaigns stored</h4>
-              <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                Content draft outlines saved from the AI Write or Content Stacker systems will archive here.
+            <div className="p-10 text-center rounded-2xl bg-slate-900/40 border border-slate-800 space-y-2">
+              <FolderOpen className="h-8 w-8 text-slate-600 mx-auto" />
+              <h4 className="text-xs font-semibold text-slate-300">No matching drafts found</h4>
+              <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
+                Generate content in Single Writer or Content Stacker to archive outputs here.
               </p>
             </div>
           ) : (
@@ -281,23 +297,21 @@ export default function HistoryView({
                 <div
                   key={item.id}
                   onClick={() => setSelectedItem(item)}
-                  className={`p-4 rounded-xl text-left border cursor-pointer transition-all ${
+                  className={`p-4 rounded-xl text-left border cursor-pointer transition-colors relative ${
                     isSelected
-                      ? 'bg-indigo-500/10 border-indigo-500/50 shadow-md shadow-indigo-500/5'
-                      : 'bg-slate-900/50 hover:bg-slate-900 border-slate-900 text-slate-400 hover:text-slate-200'
+                      ? 'bg-indigo-600/10 border-indigo-500 text-white shadow-sm'
+                      : 'bg-slate-900/60 hover:bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-2 select-none">
                     <div className="flex items-center gap-1.5">
                       {getFormatBadge(item)}
                       {item.isFavorite && (
-                        <span className="flex items-center" title="Favorited">
-                          <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
-                        </span>
+                        <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
                       )}
                     </div>
-                    <div className="flex items-center gap-1.5 relative">
-                      <span className="text-[9px] font-mono text-slate-500 dark:text-slate-450">
+                    <div className="flex items-center gap-2 relative">
+                      <span className="text-[11px] font-mono text-slate-500 tabular-nums">
                         {new Date(item.createdAt).toLocaleDateString(undefined, { 
                           month: 'short', 
                           day: 'numeric',
@@ -305,18 +319,21 @@ export default function HistoryView({
                           minute: '2-digit'
                         })}
                       </span>
-                      {/* Quick Actions floating dropdown button */}
+
+                      {/* Quick Actions trigger button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setOpenMenuId(openMenuId === item.id ? null : item.id);
                         }}
-                        className="p-1 rounded hover:bg-slate-250 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-                        title="Quick Actions"
+                        className="p-1 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                        title="Draft options"
+                        aria-label="Draft options"
                       >
                         <MoreVertical className="h-3.5 w-3.5" />
                       </button>
 
+                      {/* Quick Actions Dropdown Menu */}
                       {openMenuId === item.id && (
                         <>
                           <div 
@@ -326,7 +343,7 @@ export default function HistoryView({
                               setOpenMenuId(null);
                             }}
                           />
-                          <div className="absolute right-0 top-6 mt-1 w-44 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1.5 z-40 text-xs text-left animate-fade-in divide-y divide-slate-100 dark:divide-slate-800 font-sans">
+                          <div className="absolute right-0 top-7 w-44 rounded-xl bg-slate-900 border border-slate-800 shadow-xl py-1 z-40 text-xs font-medium divide-y divide-slate-800">
                             <div className="py-1">
                               <button
                                 onClick={(e) => {
@@ -334,10 +351,10 @@ export default function HistoryView({
                                   onToggleFavorite(item.id);
                                   setOpenMenuId(null);
                                 }}
-                                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors uppercase font-mono text-[9px] font-extrabold"
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
                               >
-                                <Star className={`h-3.5 w-3.5 ${item.isFavorite ? 'text-amber-500 fill-amber-500' : 'text-slate-400'}`} />
-                                <span>{item.isFavorite ? 'Unfavorite' : 'Favorite'}</span>
+                                <Star className={`h-3.5 w-3.5 ${item.isFavorite ? 'text-amber-400 fill-amber-400' : 'text-slate-500'}`} />
+                                <span>{item.isFavorite ? 'Remove Star' : 'Add Star'}</span>
                               </button>
                               
                               <button
@@ -346,10 +363,10 @@ export default function HistoryView({
                                   onRegenerate(item);
                                   setOpenMenuId(null);
                                 }}
-                                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors uppercase font-mono text-[9px] font-extrabold"
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
                               >
-                                <RefreshCw className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
-                                <span>Re-generate</span>
+                                <RefreshCw className="h-3.5 w-3.5 text-indigo-400" />
+                                <span>Re-generate Draft</span>
                               </button>
 
                               <button
@@ -358,9 +375,9 @@ export default function HistoryView({
                                   exportItemToPDF(item);
                                   setOpenMenuId(null);
                                 }}
-                                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-700 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors uppercase font-mono text-[9px] font-extrabold"
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
                               >
-                                <FileText className="h-3.5 w-3.5 text-sky-500 dark:text-sky-400" />
+                                <FileText className="h-3.5 w-3.5 text-indigo-400" />
                                 <span>Export PDF</span>
                               </button>
                             </div>
@@ -373,10 +390,10 @@ export default function HistoryView({
                                   if (selectedItem?.id === item.id) setSelectedItem(null);
                                   setOpenMenuId(null);
                                 }}
-                                className="w-full flex items-center gap-2 px-3 py-1.5 text-rose-600 dark:text-rose-450 hover:bg-rose-50 dark:hover:bg-rose-955/20 transition-colors uppercase font-mono text-[9px] font-extrabold"
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-rose-400 hover:bg-rose-500/10 transition-colors"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
-                                <span>Delete Item</span>
+                                <span>Delete Permanently</span>
                               </button>
                             </div>
                           </div>
@@ -386,16 +403,16 @@ export default function HistoryView({
                   </div>
 
                   <div className="space-y-1">
-                    <h4 className="text-xs font-bold text-slate-200 line-clamp-1">
+                    <h4 className="text-xs font-bold text-white line-clamp-1">
                       {item.title}
                     </h4>
-                    <p className="text-[10px] text-slate-500 leading-normal line-clamp-2">
-                      Input text: "{item.input}"
+                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+                      "{item.input}"
                     </p>
                     {item.tags && item.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2.5 select-none text-[8px] font-bold font-mono">
+                      <div className="flex flex-wrap gap-1 mt-2 text-[9px] font-mono font-medium">
                         {item.tags.map(t => (
-                          <span key={t} className="px-1.5 py-0.5 uppercase rounded-md tracking-wider bg-slate-950/80 text-indigo-400 border border-slate-900 shadow-sm">
+                          <span key={t} className="px-1.5 py-0.5 rounded-md bg-slate-950 text-indigo-400 border border-slate-800">
                             {t}
                           </span>
                         ))}
@@ -408,21 +425,27 @@ export default function HistoryView({
           )}
         </div>
 
-        {/* Right column - details view */}
+        {/* Right Column: Full Inspector View */}
         <div className="lg:col-span-7">
           {selectedItem ? (
-            <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-900 space-y-6 shadow-sm min-h-[450px] flex flex-col animate-fade-in h-[600px]">
-              <div className="flex items-center justify-between border-b border-slate-900/60 pb-4 shrink-0">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-slate-200 line-clamp-1">{selectedItem.title}</h3>
-                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mt-1 inline-block">
-                    {selectedItem.type === 'single' ? `Single ${selectedItem.contentType} draft` : '5-in-1 stacked draft'}
-                  </span>
-                  
-                  {/* Interactive Dynamic Draft Tags Board */}
-                  <div className="flex flex-wrap items-center gap-1.5 pt-1.5 select-none">
+            <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-5 shadow-sm min-h-[500px] flex flex-col h-[640px]">
+              <div className="flex items-start justify-between border-b border-slate-800 pb-4 shrink-0 gap-4">
+                <div className="space-y-1.5 min-w-0">
+                  <h3 className="text-sm font-bold text-white truncate">{selectedItem.title}</h3>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-mono text-slate-400 uppercase">
+                      {selectedItem.type === 'single' ? `Single ${selectedItem.contentType} draft` : '5-in-1 stacked suite'}
+                    </span>
+                    <span className="text-slate-600">•</span>
+                    <span className="text-[11px] font-mono text-slate-500 tabular-nums">
+                      {new Date(selectedItem.createdAt).toLocaleString()}
+                    </span>
+                  </div>
+
+                  {/* Interactive Tags */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
                     {(selectedItem.tags || []).map(t => (
-                      <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold uppercase font-mono rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-sm">
+                      <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
                         {t}
                         <button
                           onClick={() => {
@@ -430,16 +453,16 @@ export default function HistoryView({
                             onUpdateTags?.(selectedItem.id, newTags);
                             setSelectedItem(prev => prev ? { ...prev, tags: newTags } : null);
                           }}
-                          className="hover:text-rose-400 cursor-pointer p-0.5 rounded transition-colors text-indigo-400"
+                          className="hover:text-rose-400 cursor-pointer text-xs leading-none"
+                          aria-label={`Remove ${t}`}
                         >
-                          <X className="h-2.5 w-2.5 shrink-0" />
+                          ×
                         </button>
                       </span>
                     ))}
 
-                    {/* Expandable text typing block */}
                     {showAddTagInput ? (
-                      <div className="flex items-center gap-1.5 animate-fade-in py-0.5">
+                      <div className="flex items-center gap-1">
                         <input
                           type="text"
                           value={customTagInput}
@@ -450,33 +473,32 @@ export default function HistoryView({
                               handleAddTag(customTagInput);
                             }
                           }}
-                          placeholder="Type label name..."
-                          className="bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-[10px] focus:outline-none focus:border-indigo-500/50 text-slate-300 font-sans w-24"
+                          placeholder="Label name..."
+                          className="bg-slate-950 border border-slate-800 rounded px-2 py-0.5 text-[10px] focus:outline-none focus:border-indigo-500 text-slate-200 w-24"
                           autoFocus
                         />
                         <button
                           onClick={() => handleAddTag(customTagInput)}
-                          className="text-[9px] font-bold px-1.5 py-0.5 bg-indigo-600 hover:bg-indigo-500 rounded text-slate-100 cursor-pointer"
+                          className="text-[10px] font-bold px-2 py-0.5 bg-indigo-600 rounded text-white cursor-pointer"
                         >
                           Add
                         </button>
                         <button
                           onClick={() => setShowAddTagInput(false)}
-                          className="text-slate-500 hover:text-slate-300 cursor-pointer"
+                          className="text-slate-500 hover:text-slate-300 cursor-pointer text-xs"
                         >
-                          <X className="h-3 w-3 shrink-0" />
+                          ×
                         </button>
                       </div>
                     ) : (
                       <button
                         onClick={() => setShowAddTagInput(true)}
-                        className="inline-flex items-center gap-0.5 px-2 py-0.5 text-[10px] font-extrabold rounded bg-slate-950 hover:bg-slate-900 border border-slate-900 text-slate-400 hover:text-indigo-400 cursor-pointer transition-colors"
+                        className="px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-400 hover:text-white cursor-pointer"
                       >
-                        + Custom Label
+                        + Add Tag
                       </button>
                     )}
 
-                    {/* Presets suggestions directly available in gray text buttons */}
                     {presets.filter(p => !(selectedItem.tags || []).includes(p)).map(p => (
                       <button
                         key={p}
@@ -486,7 +508,7 @@ export default function HistoryView({
                           onUpdateTags?.(selectedItem.id, newTags);
                           setSelectedItem(prev => prev ? { ...prev, tags: newTags } : null);
                         }}
-                        className="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold rounded bg-slate-950 hover:bg-slate-900 text-slate-500 hover:text-slate-300 border border-slate-900 cursor-pointer transition-colors"
+                        className="px-2 py-0.5 text-[10px] font-mono rounded-md bg-slate-950 hover:bg-slate-850 text-slate-500 hover:text-slate-300 border border-slate-800 cursor-pointer"
                       >
                         +{p}
                       </button>
@@ -494,78 +516,84 @@ export default function HistoryView({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     onClick={() => onCopy(getFullContentForCopy(selectedItem))}
-                    className="p-1.5 rounded-lg bg-slate-950 hover:bg-slate-900 border border-slate-900 text-slate-400 hover:text-white transition-colors cursor-pointer text-xs flex items-center gap-1 font-semibold"
-                    title="Copy full campaign"
+                    className="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"
+                    title="Copy full draft content"
+                    aria-label="Copy full draft content"
                   >
                     {copiedId === getFullContentForCopy(selectedItem) ? (
-                      <Check className="h-3.5 w-3.5 text-emerald-400 pointer-events-none" />
+                      <Check className="h-4 w-4 text-emerald-400" />
                     ) : (
-                      <Copy className="h-3.5 w-3.5" />
+                      <Copy className="h-4 w-4" />
                     )}
                   </button>
                   <button
                     onClick={() => handleDownload(selectedItem)}
-                    className="p-1.5 rounded-lg bg-slate-950 hover:bg-slate-900 border border-slate-900 text-slate-400 hover:text-white transition-colors cursor-pointer text-xs flex items-center gap-1 font-semibold"
-                    title="Download/Export Markdown"
+                    className="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"
+                    title="Download as Markdown (.md)"
+                    aria-label="Download as Markdown"
                   >
-                    <Download className="h-3.5 w-3.5 font-bold" />
+                    <Download className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => exportItemToPDF(selectedItem)}
-                    className="p-1.5 rounded-lg bg-indigo-950/40 hover:bg-indigo-900/30 border border-indigo-900/40 text-indigo-400 hover:text-indigo-300 transition-all cursor-pointer text-xs flex items-center gap-1.5 font-bold px-2.5 active:scale-95"
-                    title="Export as Styled PDF"
+                    className="px-3 py-1.5 rounded-lg bg-indigo-600/15 hover:bg-indigo-600/25 border border-indigo-500/30 text-indigo-300 transition-colors cursor-pointer text-xs font-semibold flex items-center gap-1.5"
+                    title="Export styled PDF"
                   >
                     <FileText className="h-3.5 w-3.5" />
-                    <span>Export PDF</span>
+                    <span>PDF</span>
                   </button>
                   <button
                     onClick={() => {
                       onDelete(selectedItem.id);
                       setSelectedItem(null);
                     }}
-                    className="p-1.5 rounded-lg bg-slate-950 hover:bg-slate-900 border border-slate-900 text-slate-500 hover:text-rose-400 transition-colors cursor-pointer text-xs flex items-center gap-1 font-semibold"
-                    title="Delete permanently"
+                    className="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer text-xs"
+                    title="Delete item"
+                    aria-label="Delete item"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               </div>
 
-              {/* Detail display container */}
-              <div className="flex-1 overflow-y-auto pr-1 select-text space-y-4 font-sans no-scrollbar">
-                <div className="p-3 bg-slate-950 rounded-xl border border-slate-900/80 mb-2">
-                  <h5 className="text-[10px] font-extrabold uppercase text-slate-500 font-mono mb-1">ORIGINAL Spark INPUT</h5>
-                  <p className="text-xs text-slate-450 italic">"{selectedItem.input}"</p>
+              {/* Main Content Area */}
+              <div className="flex-1 overflow-y-auto pr-1 space-y-4 font-sans text-xs sm:text-sm">
+                <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+                  <div className="text-[10px] font-mono font-bold uppercase text-slate-500">
+                    Source Concept / Input Prompt
+                  </div>
+                  <p className="text-slate-300 text-xs italic">
+                    "{selectedItem.input}"
+                  </p>
                 </div>
 
                 {selectedItem.type === 'single' ? (
-                  <div className="whitespace-pre-wrap text-slate-300 text-xs sm:text-sm leading-relaxed p-4 bg-slate-950 rounded-xl border border-slate-900">
+                  <div className="whitespace-pre-wrap text-slate-200 leading-relaxed p-4 bg-slate-950 rounded-xl border border-slate-800">
                     {selectedItem.data.singleOutput}
                   </div>
                 ) : (
-                  <div className="space-y-6">
-                    {/* Multi channel stack blocks */}
+                  <div className="space-y-4">
                     {[
                       { id: 'blog', name: 'SEO Blog Post', content: selectedItem.data.blogPost },
-                      { id: 'linkedin', name: 'LinkedIn Native', content: selectedItem.data.linkedinPost },
-                      { id: 'x', name: 'X tweet sequence', content: (selectedItem.data.xThread || []).join('\n\n--- Tweet Thread Break ---\n\n') },
+                      { id: 'linkedin', name: 'LinkedIn Post', content: selectedItem.data.linkedinPost },
+                      { id: 'x', name: 'X Thread', content: (selectedItem.data.xThread || []).join('\n\n--- Next Tweet ---\n\n') },
                       { id: 'instagram', name: 'Instagram Caption', content: selectedItem.data.instagramCaption },
                       { id: 'email', name: 'Email Newsletter', content: selectedItem.data.emailNewsletter },
                     ].map(block => (
-                      <div key={block.id} className="space-y-2 p-4 bg-slate-950 rounded-xl border border-slate-900">
-                        <div className="flex items-center justify-between border-b border-slate-900 pb-2">
-                          <span className="text-[10px] font-extrabold uppercase text-indigo-400 font-mono">{block.name}</span>
+                      <div key={block.id} className="space-y-2 p-4 bg-slate-950 rounded-xl border border-slate-800">
+                        <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                          <span className="text-[10px] font-mono font-bold uppercase text-indigo-400">{block.name}</span>
                           <button
                             onClick={() => onCopy(block.content || '')}
-                            className="text-[10px] font-semibold text-slate-500 hover:text-slate-300 flex items-center gap-0.5 cursor-pointer"
+                            className="text-[11px] text-slate-400 hover:text-white cursor-pointer flex items-center gap-1 font-medium"
                           >
                             {copiedId === block.content ? 'Copied' : 'Copy'}
                           </button>
                         </div>
-                        <div className="whitespace-pre-wrap text-slate-300 text-xs leading-relaxed max-h-40 overflow-y-auto font-sans pr-1">
+                        <div className="whitespace-pre-wrap text-slate-300 text-xs leading-relaxed max-h-48 overflow-y-auto pr-1">
                           {block.content}
                         </div>
                       </div>
@@ -575,14 +603,12 @@ export default function HistoryView({
               </div>
             </div>
           ) : (
-            <div className="p-8 text-center rounded-2xl bg-slate-900/20 border border-slate-900/60 text-slate-500 flex flex-col items-center justify-center min-h-[450px] space-y-3 leading-relaxed">
-              <Eye className="h-10 w-10 text-slate-700 shrink-0 select-none animate-pulse" />
-              <div className="space-y-1">
-                <h4 className="text-sm font-semibold text-slate-400">Detailed Copy Inspector</h4>
-                <p className="text-xs text-slate-650 max-w-xs">
-                  Select any workspace draft on the left to inspect, download, copy, or export in standard Markdown format.
-                </p>
-              </div>
+            <div className="p-8 text-center rounded-2xl bg-slate-900/40 border border-slate-800 text-slate-500 flex flex-col items-center justify-center min-h-[500px] space-y-2">
+              <Eye className="h-8 w-8 text-slate-600" />
+              <h4 className="text-xs font-semibold text-slate-400">Select a draft to inspect</h4>
+              <p className="text-[11px] text-slate-500 max-w-xs">
+                Click any saved campaign on the left to inspect, download as Markdown, copy, or export as PDF.
+              </p>
             </div>
           )}
         </div>

@@ -1,9 +1,9 @@
 /**
  * @license
- * SPDX-License-Identifier: Apache-2.5
+ * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Sparkles, 
   Layers, 
@@ -16,8 +16,6 @@ import {
   Twitter,
   Instagram,
   Mail,
-  ChevronDown,
-  ChevronUp,
   Download
 } from 'lucide-react';
 import { ContentType } from '../types';
@@ -45,21 +43,17 @@ interface StackerViewProps {
   onResetPrepopulated?: () => void;
 }
 
-export default function StackerView({ onStack, onAddMultiHistory, prepopulatedPrompt, onResetPrepopulated }: StackerViewProps) {
+export default function StackerView({ 
+  onStack, 
+  onAddMultiHistory, 
+  prepopulatedPrompt, 
+  onResetPrepopulated 
+}: StackerViewProps) {
   const [ideaInput, setIdeaInput] = useState('');
-
-  // Apply prepopulated values on mount/prop change
-  React.useEffect(() => {
-    if (prepopulatedPrompt) {
-      setIdeaInput(prepopulatedPrompt);
-      onResetPrepopulated?.();
-    }
-  }, [prepopulatedPrompt, onResetPrepopulated]);
   const [isStacking, setIsStacking] = useState(false);
-  const [loadingStep, setLoadingStep] = useState('Extracting core concepts...');
+  const [loadingStep, setLoadingStep] = useState('Analyzing core concepts...');
   const [errorMsg, setErrorMsg] = useState('');
   
-  // Active outputs
   const [stackedAssets, setStackedAssets] = useState<{
     blogPost: string;
     linkedinPost: string;
@@ -74,19 +68,26 @@ export default function StackerView({ onStack, onAddMultiHistory, prepopulatedPr
   const [selectedTags, setSelectedTags] = useState<string[]>(['Draft']);
   const [customTagText, setCustomTagText] = useState('');
 
+  // Apply prepopulated values on mount/prop change
+  useEffect(() => {
+    if (prepopulatedPrompt) {
+      setIdeaInput(prepopulatedPrompt);
+      onResetPrepopulated?.();
+    }
+  }, [prepopulatedPrompt, onResetPrepopulated]);
+
   const loadingSteps = [
     'Deconstructing raw concept outline...',
-    'Generating comprehensive SEO Blog markdown structure...',
-    'Crafting attention-grabbing LinkedIn hook sequence...',
-    'Structuring value-packed 4-tweet Twitter thread...',
-    'Writing conversational educational email newsletter copy...',
-    'Curating visual Instagram prompt tags...',
-    'Proofreading multi-channel assets with copywriter intelligence...'
+    'Generating structured SEO blog article...',
+    'Formatting LinkedIn post with hook...',
+    'Crafting sequential X thread tweets...',
+    'Writing email newsletter broadcast...',
+    'Curating visual Instagram caption...'
   ];
 
   const handleStack = async () => {
     if (!ideaInput.trim()) {
-      setErrorMsg('Submit a raw idea, draft post topic, or article thesis to run stacking.');
+      setErrorMsg('Please describe a concept, article thesis, product release, or talk outline.');
       return;
     }
 
@@ -99,16 +100,15 @@ export default function StackerView({ onStack, onAddMultiHistory, prepopulatedPr
     const interval = setInterval(() => {
       setLoadingStep(loadingSteps[stepIndex % loadingSteps.length]);
       stepIndex++;
-    }, 2800);
+    }, 2400);
 
     try {
       const results = await onStack(ideaInput);
       setStackedAssets(results);
-      // default tab
       setActiveWorkspaceTab('blog');
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err?.message || 'Gemini multi-generation failed. Check if API credentials exist.');
+      setErrorMsg(err?.message || 'Stacking generation failed. Check server connection.');
     } finally {
       clearInterval(interval);
       setIsStacking(false);
@@ -124,25 +124,30 @@ export default function StackerView({ onStack, onAddMultiHistory, prepopulatedPr
   const handleCopyAll = () => {
     if (!stackedAssets) return;
     const fullText = `SHARP AI CONTENT STACK
-IDEA: "${ideaInput}"
---------------------------------------------------
-1. SEO BLOG POST:
+CONCEPT: "${ideaInput}"
+==================================================
+1. SEO BLOG POST
+==================================================
 ${stackedAssets.blogPost}
 
---------------------------------------------------
-2. LINKEDIN POST:
+==================================================
+2. LINKEDIN POST
+==================================================
 ${stackedAssets.linkedinPost}
 
---------------------------------------------------
-3. X (TWITTER) THREAD:
-${stackedAssets.xThread.join('\n\n')}
+==================================================
+3. X (TWITTER) THREAD
+==================================================
+${stackedAssets.xThread.map((tweet, i) => `[${i + 1}/${stackedAssets.xThread.length}]\n${tweet}`).join('\n\n')}
 
---------------------------------------------------
-4. INSTAGRAM CAPTION:
+==================================================
+4. INSTAGRAM CAPTION
+==================================================
 ${stackedAssets.instagramCaption}
 
---------------------------------------------------
-5. EMAIL NEWSLETTER:
+==================================================
+5. EMAIL NEWSLETTER
+==================================================
 ${stackedAssets.emailNewsletter}
 `;
     copyToClipboard(fullText, 'all');
@@ -166,79 +171,95 @@ ${stackedAssets.emailNewsletter}
     }
   };
 
+  const channelStats = stackedAssets ? {
+    blog: stackedAssets.blogPost.split(/\s+/).filter(Boolean).length,
+    linkedin: stackedAssets.linkedinPost.split(/\s+/).filter(Boolean).length,
+    x: stackedAssets.xThread.join(' ').split(/\s+/).filter(Boolean).length,
+    instagram: stackedAssets.instagramCaption.split(/\s+/).filter(Boolean).length,
+    email: stackedAssets.emailNewsletter.split(/\s+/).filter(Boolean).length,
+  } : null;
+
   return (
-    <div className="space-y-8 animate-fade-in text-slate-100">
-      {/* Introduction Header */}
-      <div className="space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium bg-gradient-to-r from-purple-500/10 to-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20">
-          <Layers className="h-3.5 w-3.5 shrink-0" />
-          Core Differentiator Feature
+    <div className="space-y-6 md:space-y-8 animate-fade-in text-slate-100">
+      {/* Header */}
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md">
+            Multi-Channel Stacker
+          </span>
         </div>
-        <h1 className="text-2xl md:text-3xl font-display font-extrabold tracking-tight">
-          Content Stacker <span className="bg-gradient-to-r from-indigo-300 to-indigo-100 bg-clip-text text-transparent">⚡</span>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+          Content Stacker
         </h1>
-        <p className="text-xs md:text-sm text-slate-400 max-w-2xl">
-          Instantly formulate five native publication drafts tailored for major distribution channels out of a single core concept or educational spark.
+        <p className="text-xs md:text-sm text-slate-400 max-w-2xl leading-relaxed">
+          Input one core concept to simultaneously generate five publication-ready deliverables: an SEO blog post, LinkedIn narrative, X thread, Instagram caption, and newsletter broadcast.
         </p>
       </div>
 
-      {/* Concept Creator area */}
-      <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-900 space-y-6 shadow-sm">
-        <div className="space-y-2 text-xs font-semibold">
-          <label className="text-slate-400">Describe your core idea, thesis, startup product, or news spark</label>
+      {/* Idea Input Card */}
+      <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-4 shadow-sm">
+        <div className="space-y-1.5">
+          <label htmlFor="stacker-idea-box" className="text-xs font-semibold text-slate-300">
+            Core Idea, Thesis, Product Release, or Outline
+          </label>
           <textarea
             id="stacker-idea-box"
             value={ideaInput}
-            onChange={(e) => setIdeaInput(e.target.value)}
-            placeholder="e.g. A digital nomad's workspace planner with time-blocking calendar APIs that recalculate timezone differences automatically for remote software teams..."
-            className="w-full h-28 bg-slate-950 text-slate-200 border border-slate-900 rounded-xl p-4 text-xs md:text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 placeholder-slate-700 resize-none leading-relaxed transition-all"
+            onChange={(e) => setIdeaInput(e.target.value.slice(0, 4000))}
+            placeholder="e.g. A developer tool for zero-config distributed SQLite replication on edge nodes with automatic failover and client-side encryption..."
+            className="w-full h-32 bg-slate-950 text-slate-100 border border-slate-800 rounded-xl p-3.5 text-xs md:text-sm focus:outline-none focus:border-indigo-500 placeholder-slate-600 resize-none leading-relaxed transition-colors"
           />
         </div>
 
         {errorMsg && (
-          <div className="flex items-center gap-2 text-xs text-rose-400 bg-rose-500/5 border border-rose-500/10 p-3 rounded-xl animate-fade-in">
+          <div className="flex items-center gap-2 text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-3 rounded-xl">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{errorMsg}</span>
           </div>
         )}
 
-        <button
-          id="activate-stacker-button"
-          onClick={handleStack}
-          disabled={isStacking}
-          className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-indigo-500 hover:from-purple-500 hover:to-indigo-500 text-slate-100 text-xs font-bold leading-none shadow-lg shadow-purple-600/10 hover:shadow-purple-600/25 transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
-        >
-          {isStacking ? (
-            <span className="flex items-center gap-2">
-              <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              <span>{loadingStep}</span>
-            </span>
-          ) : (
-            <>
-              <span>Activate Content Stacker</span>
-              <span className="text-sm">⚡</span>
-            </>
-          )}
-        </button>
+        <div className="flex items-center justify-between pt-1">
+          <span className="text-xs font-mono text-slate-500 tabular-nums">
+            {ideaInput.length}/4000 characters
+          </span>
+          <button
+            id="activate-stacker-button"
+            onClick={handleStack}
+            disabled={isStacking}
+            className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold leading-none shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+          >
+            {isStacking ? (
+              <span className="flex items-center gap-2">
+                <span className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>{loadingStep}</span>
+              </span>
+            ) : (
+              <>
+                <Layers className="h-4 w-4 text-white" />
+                <span>Generate 5-in-1 Stack</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Active Output Section */}
+      {/* Output Section */}
       {stackedAssets && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fade-in">
-          {/* Channel Selector Sidebar column */}
-          <div className="lg:col-span-4 p-5 rounded-2xl bg-slate-900/50 border border-slate-900 space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start animate-fade-in">
+          {/* Channel Selector Sidebar */}
+          <div className="lg:col-span-4 p-5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-4">
             <div className="space-y-1">
-              <h3 className="text-sm font-bold text-slate-200">Constructed Channels</h3>
-              <p className="text-[11px] text-slate-500">Pick raw channels to view formatted workspace copy</p>
+              <h3 className="text-xs font-bold text-white">Generated Deliverables</h3>
+              <p className="text-[11px] text-slate-400">Select a channel to review formatted copy</p>
             </div>
 
             <div className="space-y-1.5">
               {[
-                { id: 'blog', label: 'SEO Blog Post', icon: FileText, preview: stackedAssets.blogPost },
-                { id: 'linkedin', label: 'LinkedIn Article', icon: Linkedin, preview: stackedAssets.linkedinPost },
-                { id: 'x', label: 'X (Twitter) Thread', icon: Twitter, preview: stackedAssets.xThread.join(' ') },
-                { id: 'instagram', label: 'Instagram Caption', icon: Instagram, preview: stackedAssets.instagramCaption },
-                { id: 'email', label: 'Email Newsletter', icon: Mail, preview: stackedAssets.emailNewsletter },
+                { id: 'blog', label: 'SEO Blog Post', icon: FileText, words: channelStats?.blog },
+                { id: 'linkedin', label: 'LinkedIn Article', icon: Linkedin, words: channelStats?.linkedin },
+                { id: 'x', label: 'X (Twitter) Thread', icon: Twitter, words: channelStats?.x, extra: `${stackedAssets.xThread.length} tweets` },
+                { id: 'instagram', label: 'Instagram Caption', icon: Instagram, words: channelStats?.instagram },
+                { id: 'email', label: 'Email Newsletter', icon: Mail, words: channelStats?.email },
               ].map(chan => {
                 const Icon = chan.icon;
                 const isSelected = activeWorkspaceTab === chan.id;
@@ -246,31 +267,33 @@ ${stackedAssets.emailNewsletter}
                   <button
                     key={chan.id}
                     onClick={() => setActiveWorkspaceTab(chan.id as ContentType)}
-                    className={`w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
+                    className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-colors cursor-pointer ${
                       isSelected
-                        ? 'bg-indigo-500/10 border-indigo-500/40 text-indigo-300 shadow-sm'
-                        : 'bg-slate-950 hover:bg-slate-900 border-slate-900 text-slate-400 hover:text-slate-200'
+                        ? 'bg-indigo-600/15 border-indigo-500 text-white font-semibold'
+                        : 'bg-slate-950 hover:bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
                     }`}
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className={`p-2 rounded-lg ${isSelected ? 'bg-indigo-500/20 text-indigo-300' : 'bg-slate-900 text-slate-400'}`}>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className={`p-1.5 rounded-md ${isSelected ? 'bg-indigo-500/20 text-indigo-300' : 'bg-slate-900 text-slate-400'}`}>
                         <Icon className="h-4 w-4 shrink-0" />
                       </span>
                       <div className="min-w-0">
-                        <span className="block text-xs font-bold">{chan.label}</span>
-                        <span className="block text-[9px] text-slate-500 truncate mt-0.5">{chan.preview.slice(0, 45)}...</span>
+                        <span className="block text-xs font-semibold">{chan.label}</span>
+                        <span className="block text-[10px] font-mono text-slate-500 tabular-nums">
+                          {chan.words} words {chan.extra ? `• ${chan.extra}` : ''}
+                        </span>
                       </div>
                     </div>
-                    <span className="text-[10px] text-slate-600 font-bold">→</span>
+                    <span className="text-xs font-mono text-indigo-400 font-semibold">&rarr;</span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Visual Tag Assigner inside Stacker Side panel */}
-            <div className="pt-4 border-t border-slate-900 space-y-2.5 text-[10px]">
-              <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider font-mono select-none">Assign Stack Labels:</span>
-              <div className="flex flex-wrap items-center gap-1.5 select-none">
+            {/* Tag Assigner */}
+            <div className="pt-3 border-t border-slate-800 space-y-2 text-xs">
+              <span className="text-[10px] font-mono font-bold uppercase text-slate-400">Assign Labels:</span>
+              <div className="flex flex-wrap items-center gap-1.5">
                 {['Draft', 'Final', 'Q1-Campaign'].map(t => {
                   const isSelected = selectedTags.includes(t);
                   return (
@@ -283,10 +306,10 @@ ${stackedAssets.emailNewsletter}
                           setSelectedTags(prev => [...prev, t]);
                         }
                       }}
-                      className={`px-2 py-0.5 font-bold rounded border transition-all cursor-pointer ${
+                      className={`px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md border transition-colors cursor-pointer ${
                         isSelected
-                          ? 'bg-indigo-500/15 border-indigo-500/30 text-indigo-300'
-                          : 'bg-slate-950 border-slate-900 hover:border-slate-800 text-slate-400 hover:text-slate-200'
+                          ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-300'
+                          : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
                       }`}
                     >
                       {t}
@@ -294,11 +317,12 @@ ${stackedAssets.emailNewsletter}
                   );
                 })}
                 {selectedTags.filter(t => !['Draft', 'Final', 'Q1-Campaign'].includes(t)).map(t => (
-                  <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 shadow-sm uppercase font-mono">
+                  <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
                     {t}
                     <button
                       onClick={() => setSelectedTags(prev => prev.filter(x => x !== t))}
-                      className="hover:text-rose-450 cursor-pointer text-xs"
+                      className="hover:text-rose-400 cursor-pointer text-xs"
+                      aria-label={`Remove ${t} tag`}
                     >
                       ×
                     </button>
@@ -306,10 +330,10 @@ ${stackedAssets.emailNewsletter}
                 ))}
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1 pt-1">
                 <input
                   type="text"
-                  placeholder="+ Custom Label"
+                  placeholder="+ Custom Tag"
                   value={customTagText}
                   onChange={(e) => setCustomTagText(e.target.value.slice(0, 20))}
                   onKeyDown={(e) => {
@@ -322,62 +346,67 @@ ${stackedAssets.emailNewsletter}
                       setCustomTagText('');
                     }
                   }}
-                  className="w-full bg-slate-950 border border-slate-900 rounded px-2.5 py-1 text-[10px] focus:outline-none focus:border-indigo-500/40 text-slate-350 placeholder-slate-700 font-sans"
+                  className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-[10px] focus:outline-none focus:border-indigo-500 text-slate-200 placeholder-slate-600 font-sans"
                 />
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-900 flex flex-col gap-2">
+            <div className="pt-3 border-t border-slate-800 flex flex-col gap-2">
               <button
                 id="save-studio-stack"
                 onClick={handleSaveToStudio}
                 disabled={isSaved}
-                className={`w-full py-3 px-4 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                className={`w-full py-2.5 px-4 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                   isSaved
                     ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 cursor-default'
-                    : 'bg-slate-950 hover:bg-slate-900 border-slate-900 text-indigo-400 hover:text-indigo-300'
+                    : 'bg-indigo-600 hover:bg-indigo-500 border-indigo-500 text-white'
                 }`}
               >
                 <FolderPlus className="h-4 w-4" />
-                <span>{isSaved ? 'Drafts Backed Up' : 'Save Full Stack (5)'}</span>
+                <span>{isSaved ? 'Suite Saved to Studio' : 'Save Suite to Studio'}</span>
               </button>
 
               <button
                 onClick={handleCopyAll}
-                className="w-full py-3 px-4 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-900 text-slate-350 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-2 px-4 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-colors"
               >
                 {copiedChannel === 'all' ? (
                   <>
                     <Check className="h-4 w-4 text-emerald-400" />
-                    <span className="text-emerald-400">Stack Copied!</span>
+                    <span className="text-emerald-400">All Channels Copied</span>
                   </>
                 ) : (
                   <>
                     <Copy className="h-4 w-4" />
-                    <span>Copy Complete Suite</span>
+                    <span>Copy All 5 Channels</span>
                   </>
                 )}
               </button>
             </div>
           </div>
 
-          {/* Active Workstation Output column */}
-          <div className="lg:col-span-8 p-6 rounded-2xl bg-slate-900/50 border border-slate-900 space-y-6 shadow-sm">
-            <div className="flex items-center justify-between border-b border-slate-900/60 pb-4">
+          {/* Workstation Output Display */}
+          <div className="lg:col-span-8 p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-4 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-400 font-mono">WORKSPACE EDITOR</span>
-                <h3 className="text-sm font-bold text-slate-200 capitalize mt-0.5">{activeWorkspaceTab} Channel Outline</h3>
+                <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-indigo-400">
+                  {activeWorkspaceTab.toUpperCase()} DELIVERABLE
+                </span>
+                <h3 className="text-sm font-bold text-white capitalize">
+                  {activeWorkspaceTab} Copy Draft
+                </h3>
               </div>
 
               <button
                 onClick={() => copyToClipboard(getChannelText(activeWorkspaceTab), activeWorkspaceTab)}
-                className="p-2 px-3 rounded-lg bg-slate-950 hover:bg-slate-900 border border-slate-900 text-slate-400 hover:text-white transition-colors cursor-pointer text-xs flex items-center gap-1.5 font-semibold"
+                className="px-3 py-1.5 rounded-lg bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer text-xs flex items-center gap-1.5 font-semibold"
                 title={`Copy ${activeWorkspaceTab} text`}
+                aria-label={`Copy ${activeWorkspaceTab} text`}
               >
                 {copiedChannel === activeWorkspaceTab ? (
                   <>
                     <Check className="h-3.5 w-3.5 text-emerald-400" />
-                    <span className="text-emerald-400 font-bold font-mono">Copied</span>
+                    <span className="text-emerald-400 font-mono">Copied</span>
                   </>
                 ) : (
                   <>
@@ -388,29 +417,25 @@ ${stackedAssets.emailNewsletter}
               </button>
             </div>
 
-            {/* Custom content display formatting depending on channel */}
-            <div className="p-5 md:p-6 rounded-xl bg-slate-950 border border-slate-900/80 max-h-[500px] overflow-y-auto leading-relaxed text-xs sm:text-sm text-slate-300 font-sans">
-              
+            <div className="p-5 rounded-xl bg-slate-950 border border-slate-800 max-h-[520px] overflow-y-auto leading-relaxed text-xs sm:text-sm text-slate-200 font-sans">
               {activeWorkspaceTab === 'x' ? (
-                <div className="space-y-4">
-                  <div className="text-[10px] uppercase tracking-wider font-extrabold text-blue-400 bg-blue-500/5 border border-blue-500/10 px-2.5 py-1 rounded inline-block font-mono mb-2">
-                    Simulated 𝕏 Tweet Thread
+                <div className="space-y-3">
+                  <div className="text-[10px] uppercase tracking-wider font-mono font-bold text-indigo-400 mb-2">
+                    Numbered Tweet Sequence
                   </div>
                   {stackedAssets.xThread.map((tweet, idx) => (
-                    <div key={idx} className="p-4 rounded-xl bg-slate-900/20 border border-slate-900 font-sans relative">
-                      <span className="absolute top-3 right-4 font-mono text-[10px] text-slate-600 font-bold">
-                        {idx + 1} / {stackedAssets.xThread.length}
-                      </span>
-                      <p className="pr-12 text-slate-200 leading-normal">{tweet}</p>
+                    <div key={idx} className="p-3.5 rounded-lg bg-slate-900 border border-slate-800/80 font-sans relative space-y-1">
+                      <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
+                        <span>Tweet {idx + 1} of {stackedAssets.xThread.length}</span>
+                        <span className="tabular-nums">{tweet.length} chars</span>
+                      </div>
+                      <p className="text-slate-200 text-xs leading-normal whitespace-pre-wrap">{tweet}</p>
                     </div>
                   ))}
                 </div>
               ) : activeWorkspaceTab === 'blog' ? (
-                <div className="space-y-4 font-sans prose prose-invert max-w-none">
-                  {/* Styled block of blog elements manually for display elegance */}
-                  <div className="whitespace-pre-wrap leading-relaxed text-slate-300">
-                    {stackedAssets.blogPost}
-                  </div>
+                <div className="whitespace-pre-wrap leading-relaxed space-y-2">
+                  {stackedAssets.blogPost}
                 </div>
               ) : (
                 <div className="whitespace-pre-wrap leading-relaxed">
