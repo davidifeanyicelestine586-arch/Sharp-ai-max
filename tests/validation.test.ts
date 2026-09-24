@@ -60,3 +60,17 @@ test('rejects malformed stack output', () => {
     /X thread/,
   );
 });
+
+
+test('rejects oversized model output', () => {
+  assert.throws(
+    () => validateStackResponse({
+      blogPost: 'x'.repeat(40_001),
+      linkedinPost: 'LinkedIn',
+      xThread: ['1/ One', '2/ Two', '3/ Three'],
+      instagramCaption: 'Instagram',
+      emailNewsletter: 'Email',
+    }),
+    /exceeded/,
+  );
+});
