@@ -92,7 +92,7 @@ export default function PromptLibraryView({
           </p>
         </div>
 
-        <button
+        <button type="button"
           id="btn-add-prompt"
           onClick={() => setShowAddForm(!showAddForm)}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold leading-none cursor-pointer transition-colors shadow-sm self-start sm:self-auto"
