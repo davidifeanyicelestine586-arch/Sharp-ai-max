@@ -3,6 +3,9 @@ export type AllowedContentType = (typeof CONTENT_TYPES)[number];
 
 export const MAX_GENERATE_PROMPT_LENGTH = 12_000;
 export const MAX_STACK_IDEA_LENGTH = 8_000;
+const MAX_BLOG_OUTPUT_LENGTH = 40_000;
+const MAX_SOCIAL_OUTPUT_LENGTH = 10_000;
+const MAX_EMAIL_OUTPUT_LENGTH = 20_000;
 
 export class ValidationError extends Error {
   statusCode = 400;
@@ -73,6 +76,16 @@ export function validateStackResponse(value: unknown): {
   for (const field of requiredStrings) {
     if (typeof value[field] !== 'string' || !value[field].trim()) {
       throw new ValidationError(`Model output is missing a valid ${field}.`);
+    }
+
+    const maxLength = field === 'blogPost'
+      ? MAX_BLOG_OUTPUT_LENGTH
+      : field === 'emailNewsletter'
+        ? MAX_EMAIL_OUTPUT_LENGTH
+        : MAX_SOCIAL_OUTPUT_LENGTH;
+
+    if (value[field].length > maxLength) {
+      throw new ValidationError(`Model output exceeded the allowed ${field} size.`);
     }
   }
 
