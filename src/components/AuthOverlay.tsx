@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useState } from 'react';
 import { Sparkles, Mail, Lock, User, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
 
@@ -57,7 +52,11 @@ export default function AuthOverlay({ onLoginSuccess }: AuthOverlayProps) {
           </div>
           
           <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
-            Transform single ideas into blog articles, LinkedIn updates, newsletters, and social copy.
+            Turn one idea into channel-ready content from a single workspace.
+          </p>
+
+          <p className="text-[10px] text-amber-300/90 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 leading-relaxed">
+            Prototype mode: account authentication and billing are not connected yet. This screen stores workspace state locally in your browser.
           </p>
         </div>
 
@@ -115,7 +114,7 @@ export default function AuthOverlay({ onLoginSuccess }: AuthOverlayProps) {
 
           {isSignUp && (
             <div className="space-y-1 pt-1">
-              <label className="text-[11px] font-semibold text-slate-300">Initial Plan</label>
+              <label className="text-[11px] font-semibold text-slate-300">Workspace Tier</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -155,7 +154,7 @@ export default function AuthOverlay({ onLoginSuccess }: AuthOverlayProps) {
             type="submit"
             className="w-full mt-2 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold leading-none transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
           >
-            <span>{isSignUp ? 'Create Studio Workspace' : 'Sign In to Studio'}</span>
+            <span>{isSignUp ? 'Create Local Workspace' : 'Continue to Workspace'}</span>
             <ArrowRight className="h-3.5 w-3.5" />
           </button>
         </form>
@@ -163,7 +162,7 @@ export default function AuthOverlay({ onLoginSuccess }: AuthOverlayProps) {
         {/* Toggle between sign in and sign up */}
         <div className="text-center space-y-3 pt-3 border-t border-slate-800 text-xs">
           <p className="text-slate-400 text-[11px]">
-            {isSignUp ? 'Already have an account?' : 'Need a new studio workspace?'}
+            {isSignUp ? 'Already have a local workspace?' : 'Need a new local workspace?'}
             {' '}
             <button
               onClick={() => {
@@ -181,7 +180,7 @@ export default function AuthOverlay({ onLoginSuccess }: AuthOverlayProps) {
             className="w-full py-2 rounded-xl bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-300 hover:text-white text-xs font-medium cursor-pointer flex items-center justify-center gap-1.5 transition-colors"
           >
             <ShieldCheck className="h-3.5 w-3.5 text-indigo-400" />
-            <span>Enter Demo Studio Account</span>
+            <span>Enter Demo Workspace</span>
           </button>
         </div>
       </div>

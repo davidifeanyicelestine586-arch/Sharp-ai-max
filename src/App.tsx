@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useState, useEffect } from 'react';
 import { 
   HistoryItem, 
@@ -21,7 +16,7 @@ import ProfileView from './components/ProfileView';
 import AuthOverlay from './components/AuthOverlay';
 import TagGuideModal from './components/TagGuideModal';
 
-// Stock initial prompt templates
+// Built-in prompt templates
 const STOCK_TEMPLATES: PromptTemplate[] = [
   {
     id: 'pas-copywriter',
@@ -253,7 +248,7 @@ export default function App() {
   const handleGenerateSingleText = async (prompt: string, contentType: ContentType): Promise<string> => {
     // Check credits constraint under Free tier
     if (user.tier === 'free' && user.creditsUsed >= user.creditsTotal) {
-      throw new Error('Workspace Quota Exceeded. Upgrade to Pro Plan on your account dashboard or delete cached history.');
+      throw new Error('Workspace Quota Exceeded. Open the workspace profile to review the local tier state.');
     }
 
     try {
@@ -314,7 +309,7 @@ export default function App() {
   }> => {
     // Check limits
     if (user.tier === 'free' && user.creditsUsed + 5 > user.creditsTotal) {
-      throw new Error('Workspace Quota Exceeded. Complete stack takes 5 credits. Turn to Billing profile to upgrade.');
+      throw new Error('Workspace Quota Exceeded. Complete stack takes 5 credits. Open the workspace profile to review the local tier state.');
     }
 
     try {

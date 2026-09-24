@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 export type ContentType = 'blog' | 'linkedin' | 'x' | 'instagram' | 'facebook' | 'email';
 
 export interface PromptTemplate {
@@ -19,7 +14,7 @@ export interface HistoryItem {
   title: string;
   input: string;
   contentType?: ContentType; // for single
-  category?: string; // for prompt template used if any
+  category?: string;
   data: {
     blogPost?: string;
     linkedinPost?: string;

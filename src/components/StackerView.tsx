@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useState, useEffect } from 'react';
 import { 
   Sparkles, 
@@ -18,7 +13,6 @@ import {
   Mail,
   Download
 } from 'lucide-react';
-import { ContentType } from '../types';
 
 interface StackerViewProps {
   onStack: (idea: string) => Promise<{
