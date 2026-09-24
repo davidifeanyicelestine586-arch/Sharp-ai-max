@@ -25,6 +25,11 @@ jobs:
           cache: npm
 
       - name: Install dependencies
+        if: github.event_name == 'push' && github.ref == 'refs/heads/security/dependency-hardening'
+        run: npm install --no-audit --no-fund
+
+      - name: Install locked dependencies
+        if: !(github.event_name == 'push' && github.ref == 'refs/heads/security/dependency-hardening')
         run: npm ci
 
       - name: Synchronize lockfile
