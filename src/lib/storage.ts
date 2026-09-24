@@ -108,4 +108,6 @@ export function clearWorkspaceStorage(): void {
   localStorage.removeItem(STORAGE_KEYS.history);
   localStorage.removeItem(STORAGE_KEYS.customPrompts);
   localStorage.removeItem(STORAGE_KEYS.tagGuide);
+  localStorage.removeItem('sharp_ai_single_prompt_autosave');
+  localStorage.removeItem('sharp_ai_single_prompt_autosave_type');
 }
