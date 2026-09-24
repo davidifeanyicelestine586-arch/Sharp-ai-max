@@ -158,7 +158,7 @@ export default function HistoryView({
               Drafts &amp; Campaign History
             </h1>
             {onOpenTagGuide && (
-              <button
+              <button type="button"
                 onClick={onOpenTagGuide}
                 className="text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-4 cursor-pointer font-medium"
               >
@@ -176,7 +176,7 @@ export default function HistoryView({
             {showClearConfirm ? (
               <div className="flex items-center gap-2 p-2 bg-rose-500/10 border border-rose-500/30 rounded-xl">
                 <span className="text-xs text-rose-300 font-medium">Delete all history items?</span>
-                <button
+                <button type="button"
                   onClick={() => {
                     onClearAll();
                     setShowClearConfirm(false);
@@ -186,7 +186,7 @@ export default function HistoryView({
                 >
                   Confirm Delete
                 </button>
-                <button
+                <button type="button"
                   onClick={() => setShowClearConfirm(false)}
                   className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium cursor-pointer transition-colors"
                 >
@@ -194,7 +194,7 @@ export default function HistoryView({
                 </button>
               </div>
             ) : (
-              <button
+              <button type="button"
                 onClick={() => setShowClearConfirm(true)}
                 className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-rose-400 text-xs font-semibold cursor-pointer transition-colors"
               >
@@ -227,7 +227,7 @@ export default function HistoryView({
               { id: 'stacked', label: 'Stacked Suites' },
               { id: 'favorites', label: '★ Starred' },
             ].map(type => (
-              <button
+              <button type="button"
                 key={type.id}
                 onClick={() => setFilterType(type.id as PromptCategory)}
                 className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
@@ -246,7 +246,7 @@ export default function HistoryView({
         {allUniqueTags.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5 px-3.5 py-2 bg-slate-900/40 rounded-xl border border-slate-800/80 text-xs">
             <span className="font-mono text-[11px] text-slate-500 mr-1 uppercase">Filter by tag:</span>
-            <button
+            <button type="button"
               onClick={() => setSelectedTagFilter('all')}
               className={`px-2 py-0.5 text-[11px] font-mono font-medium rounded-md transition-colors cursor-pointer ${
                 selectedTagFilter === 'all'
@@ -257,7 +257,7 @@ export default function HistoryView({
               All Tags
             </button>
             {allUniqueTags.map(tag => (
-              <button
+              <button type="button"
                 key={tag}
                 onClick={() => setSelectedTagFilter(tag)}
                 className={`px-2 py-0.5 text-[11px] font-mono font-medium rounded-md transition-colors cursor-pointer ${
@@ -316,7 +316,7 @@ export default function HistoryView({
                       </span>
 
                       {/* Quick Actions trigger button */}
-                      <button
+                      <button type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           setOpenMenuId(openMenuId === item.id ? null : item.id);
@@ -340,7 +340,7 @@ export default function HistoryView({
                           />
                           <div className="absolute right-0 top-7 w-44 rounded-xl bg-slate-900 border border-slate-800 shadow-xl py-1 z-40 text-xs font-medium divide-y divide-slate-800">
                             <div className="py-1">
-                              <button
+                              <button type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onToggleFavorite(item.id);
@@ -352,7 +352,7 @@ export default function HistoryView({
                                 <span>{item.isFavorite ? 'Remove Star' : 'Add Star'}</span>
                               </button>
                               
-                              <button
+                              <button type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onRegenerate(item);
@@ -364,7 +364,7 @@ export default function HistoryView({
                                 <span>Re-generate Draft</span>
                               </button>
 
-                              <button
+                              <button type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   exportItemToPDF(item);
@@ -378,7 +378,7 @@ export default function HistoryView({
                             </div>
                             
                             <div className="py-1">
-                              <button
+                              <button type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onDelete(item.id);
@@ -442,7 +442,7 @@ export default function HistoryView({
                     {(selectedItem.tags || []).map(t => (
                       <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
                         {t}
-                        <button
+                        <button type="button"
                           onClick={() => {
                             const newTags = (selectedItem.tags || []).filter(x => x !== t);
                             onUpdateTags?.(selectedItem.id, newTags);
