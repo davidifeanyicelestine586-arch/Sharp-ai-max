@@ -126,7 +126,7 @@ export default function AuthOverlay({ onLoginSuccess }: AuthOverlayProps) {
                   }`}
                 >
                   <span className="block text-xs font-bold leading-none">Free Tier</span>
-                  <span className="block text-[10px] text-slate-500 mt-1 font-mono">5k words/mo</span>
+                  <span className="block text-[10px] text-slate-500 mt-1 font-mono">100 preview credits</span>
                 </button>
                 <button
                   type="button"
@@ -138,7 +138,7 @@ export default function AuthOverlay({ onLoginSuccess }: AuthOverlayProps) {
                   }`}
                 >
                   <span className="block text-xs font-bold leading-none">Pro Tier</span>
-                  <span className="block text-[10px] text-slate-500 mt-1 font-mono">Unmetered</span>
+                  <span className="block text-[10px] text-slate-500 mt-1 font-mono">Preview mode</span>
                 </button>
               </div>
             </div>
