@@ -27,8 +27,8 @@ const rateBucketCleanup = setInterval(() => {
   for (const [key, bucket] of rateBuckets) {
     if (now >= bucket.resetAt) rateBuckets.delete(key);
   }
-}, RATE_WINDOW_MS);
-rateBucketCleanup.unref();
+}, RATE_WINDOW_MS) as ReturnType<typeof setInterval> & { unref?: () => void };
+rateBucketCleanup.unref?.();
 
 function clientKey(req: Request): string {
   return req.socket.remoteAddress || 'unknown-client';
