@@ -8,11 +8,11 @@ import {
   AlertCircle,
   FileText
 } from 'lucide-react';
-import { PromptTemplate } from '../types';
+import { PromptCategory, PromptTemplate } from '../types';
 
 interface PromptLibraryViewProps {
   prompts: PromptTemplate[];
-  onAddCustomPrompt: (tpl: { title: string; category: any; description: string; prompt: string }) => void;
+  onAddCustomPrompt: (tpl: { title: string; category: PromptCategory; description: string; prompt: string }) => void;
   onDeleteCustomPrompt: (id: string) => void;
   onDeployPrompt: (promptTpl: PromptTemplate) => void;
 }
@@ -127,7 +127,7 @@ export default function PromptLibraryView({
               <label className="text-xs font-semibold text-slate-300">Category</label>
               <select
                 value={newCategory}
-                onChange={e => setNewCategory(e.target.value as any)}
+                onChange={e => setNewCategory(e.target.value as PromptCategory)}
                 className="w-full bg-slate-950 text-slate-200 border border-slate-800 rounded-lg p-2.5 text-xs focus:outline-none focus:border-indigo-500 cursor-pointer"
               >
                 <option value="marketing">Marketing</option>
@@ -205,7 +205,7 @@ export default function PromptLibraryView({
 
         <div className="flex gap-1.5 overflow-x-auto w-full sm:w-auto no-scrollbar py-0.5">
           {categories.map((cat) => (
-            <button
+            <button type="button"
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
@@ -242,7 +242,7 @@ export default function PromptLibraryView({
                       {tpl.category}
                     </span>
                     {isCustom && (
-                      <button
+                      <button type="button"
                         onClick={() => onDeleteCustomPrompt(tpl.id)}
                         className="text-slate-500 hover:text-rose-400 p-1 rounded-md transition-colors cursor-pointer"
                         title="Delete custom recipe"
@@ -268,7 +268,7 @@ export default function PromptLibraryView({
                     {isCustom ? 'User Recipe' : 'Curated'}
                   </span>
 
-                  <button
+                  <button type="button"
                     onClick={() => onDeployPrompt(tpl)}
                     className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 cursor-pointer"
                   >
