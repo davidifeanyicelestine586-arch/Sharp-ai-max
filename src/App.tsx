@@ -4,6 +4,7 @@ import {
   PromptTemplate, 
   UserProfile, 
   ContentType,
+  PromptCategory,
   DashboardStats 
 } from './types';
 import Sidebar from './components/Sidebar';
@@ -193,7 +194,7 @@ export default function App() {
   };
 
   // Actions: Custom Prompt Recipe Creation
-  const handleAddCustomPrompt = (tpl: { title: string; category: any; description: string; prompt: string }) => {
+  const handleAddCustomPrompt = (tpl: { title: string; category: PromptCategory; description: string; prompt: string }) => {
     const freshTemplate: PromptTemplate = {
       id: `custom-${Date.now()}`,
       title: tpl.title,
