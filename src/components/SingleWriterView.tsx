@@ -160,9 +160,9 @@ export default function SingleWriterView({
     try {
       const output = await onGenerate(promptInput, contentType);
       setGeneratedText(output);
-    } catch (err: any) {
-      console.error(err);
-      setErrorMsg(err?.message || 'Content generation request failed. Check server connection and API key.');
+    } catch (error: unknown) {
+      console.error(error instanceof Error ? error.message : 'Generation failed.');
+      setErrorMsg(error instanceof Error ? error.message : 'Content generation request failed. Check server connection and API key.');
     } finally {
       clearInterval(interval);
       setIsGenerating(false);
