@@ -16,6 +16,7 @@ import HistoryView from './components/HistoryView';
 import ProfileView from './components/ProfileView';
 import AuthOverlay from './components/AuthOverlay';
 import TagGuideModal from './components/TagGuideModal';
+import LandingView from './components/LandingView';
 import { generateContent, stackContent } from './lib/api';
 import {
   clearWorkspaceStorage,
@@ -75,7 +76,7 @@ const STOCK_TEMPLATES: PromptTemplate[] = [
   },
 ];
 
-const VALID_TABS = ['dashboard', 'write', 'stacker', 'prompts', 'history', 'profile'] as const;
+const VALID_TABS = ['dashboard', 'write', 'stacker', 'prompts', 'history', 'profile', 'overview', 'landing'] as const;
 type AppTab = typeof VALID_TABS[number];
 
 const getTabFromHash = (): string => {
@@ -110,6 +111,7 @@ export default function App() {
   
   // User Authentication State
   const [user, setUser] = useState<UserProfile>(EMPTY_USER);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // History draft list
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -419,9 +421,27 @@ export default function App() {
     recentActivity: history.slice(0, 5)
   };
 
-  // Gate routing: If user is not authenticated, serve the Splash portal
+  // Gate routing: If user is not authenticated, serve the full SaaS Landing & Product Showcase
   if (!user.isLoggedIn) {
-    return <AuthOverlay onLoginSuccess={handleLoginSuccess} />;
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
+        <LandingView
+          onEnterStudio={(tier) => {
+            handleLoginSuccess('Studio Creator', 'creator@sharp-ai.local', tier || 'free');
+          }}
+          onOpenAuthModal={() => setIsAuthModalOpen(true)}
+          user={user}
+          theme={theme}
+          onToggleTheme={handleToggleTheme}
+        />
+        {isAuthModalOpen && (
+          <AuthOverlay
+            onLoginSuccess={handleLoginSuccess}
+            onClose={() => setIsAuthModalOpen(false)}
+          />
+        )}
+      </div>
+    );
   }
 
   // Active workspace component selector
@@ -495,6 +515,24 @@ export default function App() {
             onDowngrade={handleDowngradeToFree}
             onUpdateName={handleUpdateUserName}
           />
+        );
+      case 'overview':
+      case 'landing':
+        return (
+          <div className="-m-6 md:-m-10">
+            <LandingView
+              onEnterStudio={(tier) => {
+                if (tier === 'pro' && user.tier !== 'pro') {
+                  handleUpgradeToPro();
+                }
+                setActiveTab('dashboard');
+              }}
+              onOpenAuthModal={() => setActiveTab('profile')}
+              user={user}
+              theme={theme}
+              onToggleTheme={handleToggleTheme}
+            />
+          </div>
         );
       default:
         return <div className="text-slate-400">Section not configured.</div>;

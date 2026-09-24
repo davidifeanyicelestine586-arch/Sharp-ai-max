@@ -68,14 +68,14 @@ export default function DashboardView({
   const getFormatBadge = (type: string, contentType?: string) => {
     if (type === 'stacked') {
       return (
-        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-semibold rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 leading-none">
-          <Layers className="h-3 w-3" /> 5-in-1 Stack
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-400 leading-none">
+          <Layers className="h-3.5 w-3.5" /> 5-in-1 Stack
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-semibold rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 leading-none uppercase">
-        <PenTool className="h-3 w-3" /> {contentType || 'Single'}
+      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 leading-none uppercase">
+        <PenTool className="h-3.5 w-3.5" /> {contentType || 'Single'}
       </span>
     );
   };
@@ -86,10 +86,10 @@ export default function DashboardView({
       <div className="rounded-2xl bg-slate-900 border border-slate-800 p-6 md:p-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-semibold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md">
-                Workspace Overview
-              </span>
+            <div className="flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider text-indigo-400">
+              <span>Workspace Studio</span>
+              <span aria-hidden="true">·</span>
+              <span>{user.tier === 'pro' ? 'Pro Tier' : 'Free Preview'}</span>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
               Welcome back, {user.name}
@@ -111,11 +111,17 @@ export default function DashboardView({
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <button type="button"
+              onClick={() => setActiveTab('write')}
+              className="px-4 py-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-slate-300 text-xs font-bold leading-none border border-slate-800 transition-colors cursor-pointer"
+            >
+              <span>Single Writer</span>
+            </button>
+            <button type="button"
               id="cta-stacker"
               onClick={() => setActiveTab('stacker')}
               className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold leading-none shadow-sm transition-all duration-200 flex items-center gap-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-400"
             >
-              <span>New Multi-Channel Stack</span>
+              <span>New 5-in-1 Stack</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>

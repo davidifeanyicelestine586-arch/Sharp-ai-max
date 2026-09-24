@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Sparkles, Mail, User, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Sparkles, Mail, User, ArrowRight, ShieldCheck, X } from 'lucide-react';
 
 interface AuthOverlayProps {
   onLoginSuccess: (name: string, email: string, tier: 'free' | 'pro') => void;
+  onClose?: () => void;
 }
 
-export default function AuthOverlay({ onLoginSuccess }: AuthOverlayProps) {
+export default function AuthOverlay({ onLoginSuccess, onClose }: AuthOverlayProps) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [plan, setPlan] = useState<'free' | 'pro'>('free');
@@ -28,7 +29,18 @@ export default function AuthOverlay({ onLoginSuccess }: AuthOverlayProps) {
 
   return (
     <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto font-sans text-slate-100 z-50">
-      <div className="w-full max-w-sm p-6 sm:p-8 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl space-y-6">
+      <div className="w-full max-w-sm p-6 sm:p-8 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl space-y-6 relative">
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+            aria-label="Close dialog"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+
         <div className="text-center space-y-2">
           <div className="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center mx-auto shadow-sm text-white">
             <Sparkles className="h-5 w-5" />

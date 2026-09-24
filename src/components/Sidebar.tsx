@@ -12,7 +12,8 @@ import {
   CreditCard,
   Sun,
   Moon,
-  LogIn
+  LogIn,
+  Compass
 } from 'lucide-react';
 import { UserProfile } from '../types';
 
@@ -46,6 +47,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, theme
     { id: 'prompts', label: 'Prompt Library', icon: BookOpen },
     { id: 'history', label: 'Studio Archive', icon: History },
     { id: 'profile', label: 'Account & Quota', icon: User },
+    { id: 'overview', label: 'Product Tour', icon: Compass },
   ];
 
   const remainingCredits = Math.max(0, user.creditsTotal - user.creditsUsed);
