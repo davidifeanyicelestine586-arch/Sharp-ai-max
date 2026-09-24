@@ -211,17 +211,17 @@ export default function SingleWriterView({
               </div>
               <div>
                 <div className="flex items-center gap-1.5 font-semibold text-white text-xs">
-                  <span>Author Preview</span>
+                  <span>Channel Preview</span>
                   <span className="text-[10px] bg-slate-800 text-slate-400 px-1 py-0.2 rounded font-mono">1st</span>
                 </div>
-                <p className="text-[11px] text-slate-400">Founder &amp; Creator • 1h • Edited</p>
+                <p className="text-[11px] text-slate-400">Preview profile • Just now</p>
               </div>
             </div>
             <div className="whitespace-pre-line text-slate-200 text-xs leading-relaxed">
               {cleanedText}
             </div>
             <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-500 select-none">
-              <span>Feed Engagement Preview</span>
+              <span>LinkedIn-style preview</span>
               <span className="font-mono text-[10px]">LinkedIn Standard</span>
             </div>
           </div>
@@ -236,17 +236,17 @@ export default function SingleWriterView({
               </div>
               <div>
                 <div className="font-bold text-white text-xs flex items-center gap-1">
-                  <span>Studio Preview</span>
+                  <span>Channel Preview</span>
                   <span className="text-[10px] text-indigo-400 font-semibold font-mono">✓</span>
                 </div>
-                <p className="text-[11px] text-slate-500">@creator_studio</p>
+                <p className="text-[11px] text-slate-500">channel-preview</p>
               </div>
             </div>
             <div className="whitespace-pre-line text-slate-200 text-xs leading-relaxed font-sans">
               {cleanedText}
             </div>
             <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 font-mono select-none">
-              <span>Thread Format</span>
+              <span>X-style thread preview</span>
               <span>{cleanedText.length} characters</span>
             </div>
           </div>
