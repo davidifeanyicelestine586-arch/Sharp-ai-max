@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ContentType } from '../types';
 import { 
   Sparkles, 
   Layers, 
@@ -92,7 +93,7 @@ export default function StackerView({
 
     let stepIndex = 0;
     const interval = setInterval(() => {
-      setLoadingStep(loadingSteps[stepIndex % loadingSteps.length]);
+      setLoadingStep(loadingSteps[stepIndex % loadingSteps.length] ?? 'Preparing content stack...');
       stepIndex++;
     }, 2400);
 
