@@ -15,6 +15,18 @@ import HistoryView from './components/HistoryView';
 import ProfileView from './components/ProfileView';
 import AuthOverlay from './components/AuthOverlay';
 import TagGuideModal from './components/TagGuideModal';
+import { generateContent, stackContent } from './lib/api';
+import {
+  clearWorkspaceStorage,
+  EMPTY_USER,
+  loadCustomPrompts,
+  loadHistory,
+  loadUser,
+  saveCustomPrompts,
+  saveHistory,
+  saveUser,
+  STORAGE_KEYS,
+} from './lib/storage';
 
 // Built-in prompt templates
 const STOCK_TEMPLATES: PromptTemplate[] = [
@@ -67,17 +79,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   
   // User Authentication State
-  const [user, setUser] = useState<UserProfile>({
-    id: '',
-    email: '',
-    name: '',
-    tier: 'free',
-    creditsTotal: 100,
-    creditsUsed: 0,
-    wordCountGenerated: 0,
-    stackRuns: 0,
-    isLoggedIn: false
-  });
+  const [user, setUser] = useState<UserProfile>(EMPTY_USER);
 
   // History draft list
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -97,7 +99,7 @@ export default function App() {
 
   // Layout presentation theme (dark/light mode) state
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    const saved = localStorage.getItem('sharp_ai_theme');
+    const saved = localStorage.getItem(STORAGE_KEYS.theme);
     return (saved === 'light' || saved === 'dark') ? saved : 'dark';
   });
 
@@ -115,44 +117,20 @@ export default function App() {
   const handleToggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
-    localStorage.setItem('sharp_ai_theme', nextTheme);
+    localStorage.setItem(STORAGE_KEYS.theme, nextTheme);
   };
 
   // Sync state with localStorage once at load
   useEffect(() => {
-    const savedUser = localStorage.getItem('sharp_ai_user_profile');
-    const savedHistory = localStorage.getItem('sharp_ai_studio_history');
-    const savedCustomTpl = localStorage.getItem('sharp_ai_custom_prompts');
-
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (e) {
-        console.error('Stale profile parsing error:', e);
-      }
-    }
-
-    if (savedHistory) {
-      try {
-        setHistory(JSON.parse(savedHistory));
-      } catch (e) {
-        console.error('Stale history parsing error:', e);
-      }
-    }
-
-    if (savedCustomTpl) {
-      try {
-        setCustomPrompts(JSON.parse(savedCustomTpl));
-      } catch (e) {
-        console.error('Stale templates parsing error:', e);
-      }
-    }
+    setUser(loadUser());
+    setHistory(loadHistory());
+    setCustomPrompts(loadCustomPrompts());
   }, []);
 
   // Auto-onboard new sessions who haven't reviewed the tagging documentation
   useEffect(() => {
     if (user.isLoggedIn) {
-      const seenGuide = localStorage.getItem('sharp_ai_seen_tag_guide');
+      const seenGuide = localStorage.getItem(STORAGE_KEYS.tagGuide);
       if (!seenGuide) {
         setIsTagGuideOpen(true);
       }
@@ -160,10 +138,12 @@ export default function App() {
   }, [user.isLoggedIn]);
 
   // Utility to update and persist user state
-  const updateProfileAndSave = (updatedProfile: Partial<UserProfile>) => {
+  const updateProfileAndSave = (
+    update: Partial<UserProfile> | ((prev: UserProfile) => Partial<UserProfile>)
+  ) => {
     setUser(prev => {
-      const combined = { ...prev, ...updatedProfile };
-      localStorage.setItem('sharp_ai_user_profile', JSON.stringify(combined));
+      const combined = { ...prev, ...(typeof update === 'function' ? update(prev) : update) };
+      saveUser(combined);
       return combined;
     });
   };
@@ -171,22 +151,26 @@ export default function App() {
   // Utility to update history
   const saveHistoryList = (newHistoryList: HistoryItem[]) => {
     setHistory(newHistoryList);
-    localStorage.setItem('sharp_ai_studio_history', JSON.stringify(newHistoryList));
+    saveHistory(newHistoryList);
   };
 
   // Helper copy notification handler
-  const handleCopyText = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(text);
-    setTimeout(() => setCopiedId(null), 2000);
+  const handleCopyText = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(text);
+      window.setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      console.error('Clipboard copy failed.');
+    }
   };
 
   // Actions: User Login and auth integration
   const handleLoginSuccess = (name: string, email: string, tier: 'free' | 'pro') => {
     updateProfileAndSave({
-      id: `user-${Date.now()}`,
-      name,
-      email,
+      id: crypto.randomUUID(),
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
       tier,
       creditsTotal: tier === 'pro' ? 1000 : 100,
       creditsUsed: 0,
@@ -198,18 +182,13 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    setUser({
-      id: '',
-      email: '',
-      name: '',
-      tier: 'free',
-      creditsTotal: 100,
-      creditsUsed: 0,
-      wordCountGenerated: 0,
-      stackRuns: 0,
-      isLoggedIn: false
-    });
-    localStorage.removeItem('sharp_ai_user_profile');
+    clearWorkspaceStorage();
+    setUser(EMPTY_USER);
+    setHistory([]);
+    setCustomPrompts([]);
+    setIsTagGuideOpen(false);
+    setPrepopulatedPrompt('');
+    setPrepopulatedType(undefined);
     setActiveTab('dashboard');
   };
 
@@ -225,13 +204,13 @@ export default function App() {
 
     const combinedList = [freshTemplate, ...customPrompts];
     setCustomPrompts(combinedList);
-    localStorage.setItem('sharp_ai_custom_prompts', JSON.stringify(combinedList));
+    saveCustomPrompts(combinedList);
   };
 
   const handleDeleteCustomPrompt = (id: string) => {
     const filtered = customPrompts.filter(p => p.id !== id);
     setCustomPrompts(filtered);
-    localStorage.setItem('sharp_ai_custom_prompts', JSON.stringify(filtered));
+    saveCustomPrompts(filtered);
   };
 
   const handleDeployPromptInEditor = (promptTpl: PromptTemplate) => {
@@ -246,38 +225,23 @@ export default function App() {
 
   // Actions: Single Content Generation calling our server endpoint proxy
   const handleGenerateSingleText = async (prompt: string, contentType: ContentType): Promise<string> => {
-    // Check credits constraint under Free tier
     if (user.tier === 'free' && user.creditsUsed >= user.creditsTotal) {
-      throw new Error('Workspace Quota Exceeded. Open the workspace profile to review the local tier state.');
+      throw new Error('Workspace quota reached. Review the local workspace usage state.');
     }
 
     try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, contentType })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData?.error || 'Failure during prompt execution.');
-      }
-
-      const responseData = await response.json();
-      const generatedTextText = responseData.text;
-
-      // Update telemetry state
+      const generatedTextText = await generateContent(prompt, contentType);
       const textWordCount = generatedTextText.split(/\s+/).filter(Boolean).length;
-      updateProfileAndSave({
-        creditsUsed: user.creditsUsed + 1,
-        wordCountGenerated: user.wordCountGenerated + textWordCount
-      });
+
+      updateProfileAndSave(prev => ({
+        creditsUsed: prev.creditsUsed + 1,
+        wordCountGenerated: prev.wordCountGenerated + textWordCount,
+      }));
 
       return generatedTextText;
-
-    } catch (e: any) {
-      console.error('REST Call error:', e);
-      throw e;
+    } catch (error: unknown) {
+      console.error('Content generation request failed.');
+      throw error instanceof Error ? error : new Error('Content generation failed.');
     }
   };
 
@@ -300,51 +264,31 @@ export default function App() {
   };
 
   // Actions: Simultaneous Multi-channel repurposer content stacker
-  const handleStackMultiChannel = async (idea: string): Promise<{
-    blogPost: string;
-    linkedinPost: string;
-    xThread: string[];
-    instagramCaption: string;
-    emailNewsletter: string;
-  }> => {
-    // Check limits
+  const handleStackMultiChannel = async (idea: string) => {
     if (user.tier === 'free' && user.creditsUsed + 5 > user.creditsTotal) {
-      throw new Error('Workspace Quota Exceeded. Complete stack takes 5 credits. Open the workspace profile to review the local tier state.');
+      throw new Error('Workspace quota reached. A complete stack uses 5 local preview credits.');
     }
 
     try {
-      const response = await fetch('/api/stack', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idea })
-      });
+      const results = await stackContent(idea);
+      const totalWordsAdd = [
+        results.blogPost,
+        results.linkedinPost,
+        results.instagramCaption,
+        results.emailNewsletter,
+        results.xThread.join(' '),
+      ].join(' ').split(/\s+/).filter(Boolean).length;
 
-      if (!response.ok) {
-        const errObj = await response.json();
-        throw new Error(errObj?.error || 'Stacking engine failure.');
-      }
-
-      const results = await response.json();
-
-      // update tally stats
-      const blogWords = (results.blogPost || '').split(/\s+/).filter(Boolean).length;
-      const liWords = (results.linkedinPost || '').split(/\s+/).filter(Boolean).length;
-      const igWords = (results.instagramCaption || '').split(/\s+/).filter(Boolean).length;
-      const emailWords = (results.emailNewsletter || '').split(/\s+/).filter(Boolean).length;
-      const tweetWords = (results.xThread || []).join(' ').split(/\s+/).filter(Boolean).length;
-      const totalWordsAdd = blogWords + liWords + igWords + emailWords + tweetWords;
-
-      updateProfileAndSave({
-        creditsUsed: user.creditsUsed + 5,
-        wordCountGenerated: user.wordCountGenerated + totalWordsAdd,
-        stackRuns: user.stackRuns + 1
-      });
+      updateProfileAndSave(prev => ({
+        creditsUsed: prev.creditsUsed + 5,
+        wordCountGenerated: prev.wordCountGenerated + totalWordsAdd,
+        stackRuns: prev.stackRuns + 1,
+      }));
 
       return results;
-
-    } catch (e: any) {
-      console.error('Stack REST Client error:', e);
-      throw e;
+    } catch (error: unknown) {
+      console.error('Content stacking request failed.');
+      throw error instanceof Error ? error : new Error('Content stacking failed.');
     }
   };
 
@@ -550,7 +494,7 @@ export default function App() {
       <TagGuideModal 
         isOpen={isTagGuideOpen} 
         onClose={() => {
-          localStorage.setItem('sharp_ai_seen_tag_guide', 'true');
+          localStorage.setItem(STORAGE_KEYS.tagGuide, 'true');
           setIsTagGuideOpen(false);
         }} 
       />
