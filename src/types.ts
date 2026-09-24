@@ -1,10 +1,12 @@
+export type PromptCategory = 'marketing' | 'business' | 'education' | 'technology' | 'personal branding';
+
 export type ContentType = 'blog' | 'linkedin' | 'x' | 'instagram' | 'facebook' | 'email';
 
 export interface PromptTemplate {
   id: string;
   title: string;
   prompt: string;
-  category: 'marketing' | 'business' | 'education' | 'technology' | 'personal branding';
+  category: PromptCategory;
   description: string;
 }
 
