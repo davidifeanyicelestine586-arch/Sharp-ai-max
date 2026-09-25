@@ -17,6 +17,7 @@ import ProfileView from './components/ProfileView';
 import AuthOverlay from './components/AuthOverlay';
 import TagGuideModal from './components/TagGuideModal';
 import LandingView from './components/LandingView';
+import { AppFooter } from './components/ui';
 import { generateContent, stackContent } from './lib/api';
 import {
   clearWorkspaceStorage,
@@ -554,8 +555,15 @@ export default function App() {
       
       {/* Workspace central work area */}
       <main className="flex-1 h-full md:h-screen overflow-y-auto overflow-x-hidden p-6 md:p-10 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto">
-          {renderTabContent()}
+        <div className="max-w-7xl mx-auto flex flex-col min-h-full">
+          <div className="flex-1">
+            {renderTabContent()}
+          </div>
+          {activeTab !== 'overview' && activeTab !== 'landing' && (
+            <div className="mt-12">
+              <AppFooter variant="compact" onNavigateTab={setActiveTab} />
+            </div>
+          )}
         </div>
       </main>
 

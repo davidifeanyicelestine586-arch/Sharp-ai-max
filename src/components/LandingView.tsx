@@ -20,7 +20,7 @@ import {
   Moon
 } from 'lucide-react';
 import { UserProfile } from '../types';
-import { AppHeader, AppFooter, Button, Badge } from './ui';
+import { AppHeader, AppFooter, Button, IconButton, Badge, Card } from './ui';
 
 interface LandingViewProps {
   onEnterStudio: (tier?: 'free' | 'pro') => void;
@@ -298,23 +298,27 @@ export default function LandingView({
 
               {/* Dual Primary CTAs */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                <button
-                  type="button"
+                <Button
                   id="hero-launch-btn"
+                  variant="primary"
+                  size="lg"
                   onClick={() => onEnterStudio(user.tier || 'free')}
-                  className="w-full sm:w-auto px-6 py-3.5 min-h-[48px] rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  rightIcon={<ArrowRight className="h-4 w-4" />}
                 >
-                  <span>{user.isLoggedIn ? 'Return to Studio Workspace' : 'Launch Live Workspace'}</span>
-                  <ArrowRight className="h-4 w-4" />
-                </button>
+                  {user.isLoggedIn ? 'Return to Studio Workspace' : 'Launch Live Workspace'}
+                </Button>
 
-                <a
-                  href="#sandbox"
-                  className="w-full sm:w-auto px-6 py-3.5 min-h-[48px] rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300 hover:text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => {
+                    const el = document.getElementById('sandbox');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  rightIcon={<ChevronDown className="h-4 w-4 text-slate-400" />}
                 >
-                  <span>Test Interactive Demo</span>
-                  <ChevronDown className="h-4 w-4 text-slate-400" />
-                </a>
+                  Test Interactive Demo
+                </Button>
               </div>
 
               {/* Authentic Trust Strip (Quiet unboxed text) */}
@@ -375,7 +379,7 @@ export default function LandingView({
             {/* Live Interactive Sandbox Box */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               {/* Left Column: Source Input */}
-              <div className="lg:col-span-4 p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+              <Card variant="default" padding="lg" className="lg:col-span-4 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <div className="flex items-center gap-2 text-xs font-mono font-semibold uppercase text-indigo-400">
                     <Terminal className="h-4 w-4" />
@@ -398,18 +402,20 @@ export default function LandingView({
                   </p>
                 </div>
 
-                <button
-                  type="button"
+                <Button
+                  variant="outline"
+                  size="sm"
+                  fullWidth
                   onClick={() => onEnterStudio(user.tier || 'free')}
-                  className="w-full py-2.5 px-4 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-200 text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  rightIcon={<ArrowRight className="h-3.5 w-3.5" />}
+                  className="border-indigo-500/40 text-indigo-200 hover:bg-indigo-600/20"
                 >
-                  <span>{user.isLoggedIn ? 'Stack Your Idea in Studio' : 'Stack Your Own Idea in Studio'}</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-              </div>
+                  {user.isLoggedIn ? 'Stack Your Idea in Studio' : 'Stack Your Own Idea in Studio'}
+                </Button>
+              </Card>
 
               {/* Right Column: Multi-Channel Deliverable Preview */}
-              <div className="lg:col-span-8 p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-5">
+              <Card variant="default" padding="lg" className="lg:col-span-8 space-y-5">
                 {/* Channel Switcher Tabs */}
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
                   <div className="flex flex-wrap items-center gap-1.5">
@@ -435,28 +441,19 @@ export default function LandingView({
                     ))}
                   </div>
 
-                  <button
-                    type="button"
+                  <Button
+                    variant="outline"
+                    size="xs"
                     onClick={() => {
                       const text = activeChannelTab === 'xThread' 
                         ? scenario.outputs.xThread.join('\n\n')
                         : scenario.outputs[activeChannelTab];
                       handleCopy(text, activeChannelTab);
                     }}
-                    className="p-1.5 px-3 min-h-[36px] rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-300 text-xs font-medium flex items-center gap-1.5 border border-slate-800 transition-colors cursor-pointer"
+                    leftIcon={copiedKey === activeChannelTab ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
                   >
-                    {copiedKey === activeChannelTab ? (
-                      <>
-                        <Check className="h-3.5 w-3.5 text-emerald-400" />
-                        <span className="text-emerald-400 font-semibold">Copied!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-3.5 w-3.5" />
-                        <span>Copy Output</span>
-                      </>
-                    )}
-                  </button>
+                    {copiedKey === activeChannelTab ? 'Copied!' : 'Copy Output'}
+                  </Button>
                 </div>
 
                 {/* Deliverable Body Display */}
@@ -485,7 +482,7 @@ export default function LandingView({
                   <span>Channel Target: {activeChannelTab.toUpperCase()}</span>
                   <span>Validated by Sharp AI Max Editorial Parser</span>
                 </div>
-              </div>
+              </Card>
             </div>
           </div>
         </section>
@@ -508,7 +505,7 @@ export default function LandingView({
             {/* 3 Asymmetric Pillar Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Pillar 1 */}
-              <div className="p-7 rounded-2xl bg-slate-900 border border-slate-800 space-y-5 flex flex-col justify-between">
+              <Card variant="default" padding="lg" className="space-y-5 flex flex-col justify-between">
                 <div className="space-y-4">
                   <div className="h-10 w-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
                     <Layers className="h-5 w-5" />
@@ -524,10 +521,10 @@ export default function LandingView({
                   <span>Export: .md / Clipboard</span>
                   <ArrowRight className="h-3.5 w-3.5" />
                 </div>
-              </div>
+              </Card>
 
               {/* Pillar 2 */}
-              <div className="p-7 rounded-2xl bg-slate-900 border border-slate-800 space-y-5 flex flex-col justify-between">
+              <Card variant="default" padding="lg" className="space-y-5 flex flex-col justify-between">
                 <div className="space-y-4">
                   <div className="h-10 w-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
                     <PenTool className="h-5 w-5" />
@@ -543,10 +540,10 @@ export default function LandingView({
                   <span>Export: .pdf / .md / Copy</span>
                   <ArrowRight className="h-3.5 w-3.5" />
                 </div>
-              </div>
+              </Card>
 
               {/* Pillar 3 */}
-              <div className="p-7 rounded-2xl bg-slate-900 border border-slate-800 space-y-5 flex flex-col justify-between">
+              <Card variant="default" padding="lg" className="space-y-5 flex flex-col justify-between">
                 <div className="space-y-4">
                   <div className="h-10 w-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
                     <BookOpen className="h-5 w-5" />
@@ -562,7 +559,7 @@ export default function LandingView({
                   <span>Storage: 100% Private Local</span>
                   <ArrowRight className="h-3.5 w-3.5" />
                 </div>
-              </div>
+              </Card>
             </div>
           </div>
         </section>
@@ -581,31 +578,31 @@ export default function LandingView({
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
               {/* Step 1 */}
-              <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+              <Card variant="default" padding="lg" className="space-y-4">
                 <span className="text-2xl font-bold font-mono text-indigo-400">01</span>
                 <h3 className="text-base font-bold text-white">Draft or Inject Framework</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
                   Enter your product thesis, release notes, or select a built-in copywriting framework like PAS or AIDA from the prompt library.
                 </p>
-              </div>
+              </Card>
 
               {/* Step 2 */}
-              <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+              <Card variant="default" padding="lg" className="space-y-4">
                 <span className="text-2xl font-bold font-mono text-indigo-400">02</span>
                 <h3 className="text-base font-bold text-white">Synthesize 5 Channels</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
                   Gemini 3.8 Flash orchestrates the translation, ensuring X tweets respect character limits and blog posts format with proper markdown hierarchy.
                 </p>
-              </div>
+              </Card>
 
               {/* Step 3 */}
-              <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+              <Card variant="default" padding="lg" className="space-y-4">
                 <span className="text-2xl font-bold font-mono text-indigo-400">03</span>
                 <h3 className="text-base font-bold text-white">Tag, Export &amp; Distribute</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
                   Download the entire campaign as structured Markdown, export individual PDFs, or copy directly to your social scheduling queue.
                 </p>
-              </div>
+              </Card>
             </div>
           </div>
         </section>
@@ -650,11 +647,11 @@ export default function LandingView({
             {/* Pricing Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
               {/* Free Tier */}
-              <div className="p-8 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between space-y-6">
+              <Card variant="default" padding="lg" className="flex flex-col justify-between space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-bold text-white">Free Preview</h3>
-                    <span className="text-[10px] font-mono font-semibold text-slate-400 uppercase">Starter</span>
+                    <Badge variant="neutral" size="sm">Starter</Badge>
                   </div>
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-extrabold text-white tracking-tight">$0</span>
@@ -688,21 +685,22 @@ export default function LandingView({
                   </ul>
                 </div>
 
-                <button
-                  type="button"
+                <Button
+                  variant="outline"
+                  size="md"
+                  fullWidth
                   onClick={() => onEnterStudio('free')}
-                  className="w-full py-3 px-4 rounded-xl bg-slate-950 hover:bg-slate-850 border border-slate-800 text-white text-xs font-bold transition-colors cursor-pointer"
                 >
                   Start Free Workspace
-                </button>
-              </div>
+                </Button>
+              </Card>
 
               {/* Pro Tier */}
-              <div className="p-8 rounded-2xl bg-slate-900 border-2 border-indigo-500/70 flex flex-col justify-between space-y-6 relative shadow-xl shadow-indigo-950/20">
+              <Card variant="default" padding="lg" className="flex flex-col justify-between space-y-6 relative border-2 border-indigo-500/70 shadow-xl shadow-indigo-950/20">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-bold text-white">Pro Creator</h3>
-                    <span className="text-[10px] font-mono font-bold text-indigo-400 uppercase">Recommended</span>
+                    <Badge variant="primary" size="sm">Recommended</Badge>
                   </div>
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-extrabold text-white tracking-tight">
@@ -738,15 +736,16 @@ export default function LandingView({
                   </ul>
                 </div>
 
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
+                  size="md"
+                  fullWidth
                   onClick={() => onEnterStudio('pro')}
-                  className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                  rightIcon={<ArrowRight className="h-3.5 w-3.5" />}
                 >
-                  <span>Activate Pro Studio</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-              </div>
+                  Activate Pro Studio
+                </Button>
+              </Card>
             </div>
           </div>
         </section>
@@ -806,14 +805,14 @@ export default function LandingView({
                 Open the live studio now and turn your next idea into a complete five-channel campaign in under 10 seconds.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
+                  size="lg"
                   onClick={() => onEnterStudio(user.tier || 'free')}
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  rightIcon={<ArrowRight className="h-4 w-4" />}
                 >
-                  <span>{user.isLoggedIn ? 'Return to Studio Workspace' : 'Launch Live Workspace Now'}</span>
-                  <ArrowRight className="h-4 w-4" />
-                </button>
+                  {user.isLoggedIn ? 'Return to Studio Workspace' : 'Launch Live Workspace Now'}
+                </Button>
               </div>
             </div>
           </div>

@@ -18,7 +18,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { ContentType, PromptCategory, PromptTemplate } from '../types';
-import { PageHeader, Card, Button, Badge } from './ui';
+import { PageHeader, Card, Button, IconButton, Badge, FormField, Textarea } from './ui';
 
 interface SingleWriterViewProps {
   prompts: PromptTemplate[];
@@ -407,11 +407,6 @@ export default function SingleWriterView({
         {/* Inputs Column */}
         <div className="xl:col-span-7 space-y-6">
           <Card variant="default" padding="lg" className="space-y-6 shadow-sm">
-          <div className="space-y-1">
-            <h2 className="text-base font-bold text-white">Single Channel Writer</h2>
-            <p className="text-xs text-slate-400">Generate targeted copy tailored for specific platform audiences and formats</p>
-          </div>
-
           {/* Platform Toggle */}
           <div className="space-y-2">
             <label className="text-xs font-semibold text-slate-300">Target Channel</label>
@@ -486,27 +481,19 @@ export default function SingleWriterView({
           </div>
 
           {/* Main Input */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <label htmlFor="prompt-input" className="text-slate-300 font-semibold flex items-center gap-2">
-                <span>Prompt Brief &amp; Key Points</span>
-                {autoSaveStatus && (
-                  <span className="text-[11px] text-indigo-400 font-mono">
-                    • {autoSaveStatus}
-                  </span>
-                )}
-              </label>
-              <div className="flex items-center gap-3">
-                <span className="text-[11px] font-mono text-slate-500 hidden sm:inline">
-                  (Press Cmd/Ctrl + Enter to run)
+          <FormField
+            id="prompt-input"
+            label="Prompt Brief & Key Points"
+            rightNote={`${promptInput.length}/${MAX_PROMPT_LENGTH}`}
+            description={
+              autoSaveStatus ? (
+                <span className="text-[11px] text-indigo-400 font-mono">
+                  • {autoSaveStatus}
                 </span>
-                <span className="text-slate-500 font-mono text-[11px] tabular-nums">
-                  {promptInput.length}/{MAX_PROMPT_LENGTH}
-                </span>
-              </div>
-            </div>
-            
-            <textarea
+              ) : undefined
+            }
+          >
+            <Textarea
               ref={textareaRef}
               id="prompt-input"
               value={promptInput}
@@ -520,36 +507,30 @@ export default function SingleWriterView({
                 }
               }}
               placeholder="Describe your audience, topic, thesis, or product release. What are the key takeaways, arguments, or questions to address?"
-              className="w-full h-36 bg-slate-950 text-slate-100 border border-slate-800 rounded-xl p-3.5 text-xs md:text-sm focus:outline-none focus:border-indigo-500 placeholder-slate-600 resize-none leading-relaxed transition-colors"
+              className="h-36 resize-none leading-relaxed"
             />
-          </div>
+          </FormField>
 
           {errorMsg && (
-            <div className="flex items-center gap-2 text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-3 rounded-xl">
+            <div role="alert" className="flex items-center gap-2 text-xs text-rose-500 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 p-3 rounded-xl font-medium">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           {/* Submit Trigger */}
-          <button type="button"
+          <Button
             id="generate-single-button"
+            variant="primary"
+            size="md"
+            fullWidth
+            isLoading={isGenerating}
             onClick={handleGenerate}
             disabled={isGenerating}
-            className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold leading-none shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+            leftIcon={!isGenerating ? <Sparkles className="h-4 w-4" /> : undefined}
           >
-            {isGenerating ? (
-              <span className="flex items-center gap-2">
-                <span className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>{loadingText}</span>
-              </span>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4 text-white" />
-                <span>Generate {contentType.toUpperCase()} Campaign</span>
-              </>
-            )}
-          </button>
+            {isGenerating ? loadingText : `Generate ${contentType.toUpperCase()} Campaign`}
+          </Button>
         </Card>
       </div>
 
@@ -571,39 +552,29 @@ export default function SingleWriterView({
 
             {generatedText && (
               <div className="flex items-center gap-2">
-                <button type="button"
+                <Button
+                  variant="outline"
+                  size="xs"
                   onClick={handleCopy}
-                  className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors cursor-pointer text-xs flex items-center gap-1 font-semibold"
+                  leftIcon={isCopied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
                   title="Copy to clipboard"
                   aria-label="Copy to clipboard"
                 >
-                  {isCopied ? (
-                    <>
-                      <Check className="h-3.5 w-3.5 text-emerald-400" />
-                      <span className="text-emerald-400">Copied</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-3.5 w-3.5" />
-                      <span>Copy</span>
-                    </>
-                  )}
-                </button>
-                <button type="button"
+                  {isCopied ? 'Copied' : 'Copy'}
+                </Button>
+                <Button
                   id="save-draft-button"
+                  variant={isSaved ? 'outline' : 'primary'}
+                  size="xs"
                   onClick={handleSaveToHistory}
                   disabled={isSaved}
-                  className={`px-2.5 py-1.5 rounded-lg border text-xs flex items-center gap-1 font-semibold transition-colors ${
-                    isSaved
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 cursor-default'
-                      : 'bg-indigo-600 hover:bg-indigo-500 border-indigo-500 text-white cursor-pointer'
-                  }`}
+                  leftIcon={<FolderPlus className="h-3.5 w-3.5" />}
+                  className={isSaved ? 'text-emerald-400 border-emerald-500/30' : ''}
                   title="Save to history storage"
                   aria-label="Save to history storage"
                 >
-                  <FolderPlus className="h-3.5 w-3.5" />
-                  <span>{isSaved ? 'Saved' : 'Save to Studio'}</span>
-                </button>
+                  {isSaved ? 'Saved' : 'Save to Studio'}
+                </Button>
               </div>
             )}
           </div>

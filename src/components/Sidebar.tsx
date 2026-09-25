@@ -7,7 +7,6 @@ import {
   History, 
   User, 
   Sparkles, 
-  Menu, 
   X,
   CreditCard,
   Sun,
@@ -16,6 +15,7 @@ import {
   Compass
 } from 'lucide-react';
 import { UserProfile } from '../types';
+import { AppHeader } from './ui';
 
 interface SidebarProps {
   activeTab: string;
@@ -218,53 +218,20 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, theme
 
   return (
     <>
-      {/* Mobile Sticky Header Bar with Top-Right Utilities */}
-      <header className="md:hidden h-16 bg-slate-950 border-b border-slate-800 px-4 flex items-center justify-between text-white sticky top-0 z-40 select-none">
-        <button
-          type="button"
-          onClick={() => setActiveTab('overview')}
-          className="flex items-center gap-3 text-left group cursor-pointer focus:outline-none"
-        >
-          <div className="h-9 w-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-xs group-hover:bg-indigo-500 transition-colors shrink-0">
-            <Sparkles className="h-4.5 w-4.5" />
-          </div>
-          <div>
-            <span className="font-bold text-base tracking-tight text-white block leading-tight">
-              Sharp AI Max
-            </span>
-            <span className="text-[10px] text-indigo-400 font-mono font-semibold uppercase tracking-wider block">
-              Multi-Channel Studio
-            </span>
-          </div>
-        </button>
-
-        {/* Top-Right Utilities: Theme switcher and mobile menu */}
-        <div className="flex items-center gap-2">
-          <button type="button"
-            onClick={onToggleTheme}
-            className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer border border-slate-800"
-            aria-label="Toggle visual theme"
-            title="Toggle visual theme"
-          >
-            {theme === 'dark' ? (
-              <Moon className="h-4 w-4 text-indigo-400" />
-            ) : (
-              <Sun className="h-4 w-4 text-amber-400" />
-            )}
-          </button>
-
-          <button type="button" 
-            id="mobile-menu-toggle"
-            aria-expanded={isOpen}
-            aria-controls="mobile-navigation-drawer"
-            onClick={() => setIsOpen(!isOpen)}
-            className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer border border-slate-800"
-            aria-label="Toggle navigation menu"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-        </div>
-      </header>
+      {/* Mobile Unified Global Header */}
+      <div className="md:hidden sticky top-0 z-40">
+        <AppHeader
+          variant="workspace"
+          user={user}
+          theme={theme}
+          onToggleTheme={onToggleTheme}
+          onEnterStudio={() => setActiveTab('overview')}
+          onLogout={onLogout}
+          onToggleMobileMenu={() => setIsOpen(!isOpen)}
+          isMobileMenuOpen={isOpen}
+          activeTabTitle={menuItems.find(m => m.id === activeTab)?.label}
+        />
+      </div>
 
       {/* Mobile Drawer Backdrop */}
       {isOpen && (
