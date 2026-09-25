@@ -219,19 +219,21 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, theme
   return (
     <>
       {/* Mobile Unified Global Header */}
-      <div className="md:hidden sticky top-0 z-40">
-        <AppHeader
-          variant="workspace"
-          user={user}
-          theme={theme}
-          onToggleTheme={onToggleTheme}
-          onEnterStudio={() => setActiveTab('overview')}
-          onLogout={onLogout}
-          onToggleMobileMenu={() => setIsOpen(!isOpen)}
-          isMobileMenuOpen={isOpen}
-          activeTabTitle={menuItems.find(m => m.id === activeTab)?.label}
-        />
-      </div>
+      {activeTab !== 'overview' && activeTab !== 'landing' && (
+        <div className="md:hidden sticky top-0 z-40">
+          <AppHeader
+            variant="workspace"
+            user={user}
+            theme={theme}
+            onToggleTheme={onToggleTheme}
+            onEnterStudio={() => setActiveTab('overview')}
+            onLogout={onLogout}
+            onToggleMobileMenu={() => setIsOpen(!isOpen)}
+            isMobileMenuOpen={isOpen}
+            activeTabTitle={menuItems.find(m => m.id === activeTab)?.label}
+          />
+        </div>
+      )}
 
       {/* Mobile Drawer Backdrop */}
       {isOpen && (

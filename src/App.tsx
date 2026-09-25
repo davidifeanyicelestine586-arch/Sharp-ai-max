@@ -423,15 +423,28 @@ export default function App() {
     recentActivity: history.slice(0, 5)
   };
 
-  // Gate routing: If user is not authenticated, serve the full SaaS Landing & Product Showcase
-  if (!user.isLoggedIn) {
+  // Gate routing: If user is not authenticated OR user is viewing the SaaS Landing Showcase
+  if (!user.isLoggedIn || activeTab === 'overview' || activeTab === 'landing') {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
+      <div id="sharp-ai-app-shell" className="min-h-screen bg-slate-950 text-slate-100 font-sans">
         <LandingView
           onEnterStudio={(tier) => {
-            handleLoginSuccess('Studio Creator', 'creator@sharp-ai.local', tier || 'free');
+            if (!user.isLoggedIn) {
+              handleLoginSuccess('Studio Creator', 'creator@sharp-ai.local', tier || 'free');
+            } else {
+              if (tier === 'pro' && user.tier !== 'pro') {
+                handleUpgradeToPro();
+              }
+              setActiveTab('dashboard');
+            }
           }}
-          onOpenAuthModal={() => setIsAuthModalOpen(true)}
+          onOpenAuthModal={() => {
+            if (user.isLoggedIn) {
+              setActiveTab('profile');
+            } else {
+              setIsAuthModalOpen(true);
+            }
+          }}
           user={user}
           theme={theme}
           onToggleTheme={handleToggleTheme}
