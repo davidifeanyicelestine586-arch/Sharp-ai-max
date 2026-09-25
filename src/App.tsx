@@ -76,13 +76,14 @@ const STOCK_TEMPLATES: PromptTemplate[] = [
   },
 ];
 
-const VALID_TABS = ['dashboard', 'write', 'stacker', 'prompts', 'history', 'profile', 'overview', 'landing'] as const;
+const VALID_TABS = ['overview', 'dashboard', 'write', 'stacker', 'prompts', 'history', 'profile', 'landing'] as const;
 type AppTab = typeof VALID_TABS[number];
 
 const getTabFromHash = (): string => {
-  if (typeof window === 'undefined') return 'dashboard';
+  if (typeof window === 'undefined') return 'overview';
   const hash = window.location.hash.replace(/^#\/?/, '').trim().toLowerCase();
-  return VALID_TABS.includes(hash as AppTab) ? hash : 'dashboard';
+  if (!hash || hash === 'landing' || hash === 'overview') return 'overview';
+  return VALID_TABS.includes(hash as AppTab) ? hash : 'overview';
 };
 
 export default function App() {

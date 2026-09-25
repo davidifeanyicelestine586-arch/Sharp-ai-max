@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  History, 
   Search, 
   Trash2, 
   Copy, 
@@ -9,15 +8,16 @@ import {
   Eye, 
   Layers, 
   PenTool, 
-  X,
-  FileText,
-  MoreVertical,
-  Star,
-  RefreshCw,
-  FolderOpen
+  FileText, 
+  MoreVertical, 
+  Star, 
+  RefreshCw, 
+  FolderOpen,
+  X
 } from 'lucide-react';
 import { HistoryItem } from '../types';
 import { exportItemToPDF } from '../utils/pdfGenerator';
+import { PageHeader, Card, Button, IconButton, Badge, Input } from './ui';
 
 interface HistoryViewProps {
   history: HistoryItem[];
@@ -126,15 +126,15 @@ export default function HistoryView({
   const getFormatBadge = (item: HistoryItem) => {
     if (item.type === 'stacked') {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-bold rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
-          <Layers className="h-2.5 w-2.5" /> Stacked
-        </span>
+        <Badge variant="primary" size="xs" icon={<Layers className="h-2.5 w-2.5" />}>
+          Stacked
+        </Badge>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-bold rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 uppercase">
-        <PenTool className="h-2.5 w-2.5" /> {item.contentType || 'Single'}
-      </span>
+      <Badge variant="success" size="xs" icon={<PenTool className="h-2.5 w-2.5" />} className="uppercase">
+        {item.contentType || 'Single'}
+      </Badge>
     );
   };
 
@@ -144,126 +144,131 @@ export default function HistoryView({
   };
 
   return (
-    <div className="space-y-6 md:space-y-8 animate-fade-in text-slate-100">
-      {/* Intro Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-semibold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md">
-              Studio Archive
-            </span>
-          </div>
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
-              Drafts &amp; Campaign History
-            </h1>
-            {onOpenTagGuide && (
-              <button type="button"
-                onClick={onOpenTagGuide}
-                className="text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-4 cursor-pointer font-medium"
-              >
-                Tag Guide &rarr;
-              </button>
-            )}
-          </div>
-          <p className="text-xs md:text-sm text-slate-400 max-w-xl">
+    <div className="space-y-6 md:space-y-8 animate-fade-in text-slate-900 dark:text-slate-100">
+      <PageHeader
+        kicker="STUDIO ARCHIVE"
+        title="Drafts &amp; Campaign History"
+        description={
+          <span>
             Inspect, search, copy, and export any draft or multi-channel stack generated in this workspace.
-          </p>
-        </div>
-
-        {history.length > 0 && (
-          <div className="shrink-0">
-            {showClearConfirm ? (
-              <div className="flex items-center gap-2 p-2 bg-rose-500/10 border border-rose-500/30 rounded-xl">
-                <span className="text-xs text-rose-300 font-medium">Delete all history items?</span>
-                <button type="button"
-                  onClick={() => {
-                    onClearAll();
-                    setShowClearConfirm(false);
-                    setSelectedItem(null);
-                  }}
-                  className="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold cursor-pointer transition-colors"
+            {onOpenTagGuide && (
+              <>
+                {' '}
+                <button
+                  type="button"
+                  onClick={onOpenTagGuide}
+                  className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold cursor-pointer"
                 >
-                  Confirm Delete
+                  Tag Guide &rarr;
                 </button>
-                <button type="button"
-                  onClick={() => setShowClearConfirm(false)}
-                  className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium cursor-pointer transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <button type="button"
-                onClick={() => setShowClearConfirm(true)}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-rose-400 text-xs font-semibold cursor-pointer transition-colors"
-              >
-                <Trash2 className="h-4 w-4" />
-                <span>Clear Archive</span>
-              </button>
+              </>
             )}
-          </div>
-        )}
-      </div>
+          </span>
+        }
+        actions={
+          history.length > 0 && (
+            <div>
+              {showClearConfirm ? (
+                <div className="flex items-center gap-2 p-1.5 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-xl">
+                  <span className="text-xs text-rose-600 dark:text-rose-300 font-medium pl-1">
+                    Delete all history?
+                  </span>
+                  <Button
+                    variant="destructive"
+                    size="xs"
+                    onClick={() => {
+                      onClearAll();
+                      setShowClearConfirm(false);
+                      setSelectedItem(null);
+                    }}
+                  >
+                    Confirm
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="xs"
+                    onClick={() => setShowClearConfirm(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  variant="destructive-outline"
+                  size="sm"
+                  onClick={() => setShowClearConfirm(true)}
+                  leftIcon={<Trash2 className="h-4 w-4" />}
+                >
+                  Clear Archive
+                </Button>
+              )}
+            </div>
+          )
+        }
+      />
 
       {/* Filter and Search Bar */}
       <div className="space-y-3">
-        <div className="flex flex-col sm:flex-row items-center gap-3 justify-between bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-          <div className="relative w-full sm:max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 shrink-0 select-none pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search concepts or generated text..."
-              className="w-full pl-9 pr-3 py-2 bg-slate-950 text-slate-200 border border-slate-800 rounded-xl text-xs focus:outline-none focus:border-indigo-500 placeholder-slate-600 transition-colors"
-            />
-          </div>
+        <Card variant="subtle" padding="sm">
+          <div className="flex flex-col sm:flex-row items-center gap-3 justify-between">
+            <div className="w-full sm:max-w-xs">
+              <Input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search concepts or outputs..."
+                leftIcon={<Search className="h-4 w-4" />}
+              />
+            </div>
 
-          <div className="flex gap-1.5 w-full sm:w-auto overflow-x-auto no-scrollbar">
-            {[
-              { id: 'all', label: 'All Drafts' },
-              { id: 'single', label: 'Single Post' },
-              { id: 'stacked', label: 'Stacked Suites' },
-              { id: 'favorites', label: '★ Starred' },
-            ].map(type => (
-              <button type="button"
-                key={type.id}
-                onClick={() => setFilterType(type.id as 'all' | 'single' | 'stacked' | 'favorites')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-                  filterType === type.id
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800'
-                }`}
-              >
-                {type.label}
-              </button>
-            ))}
+            <div className="flex gap-1.5 w-full sm:w-auto overflow-x-auto no-scrollbar">
+              {[
+                { id: 'all', label: 'All Drafts' },
+                { id: 'single', label: 'Single Post' },
+                { id: 'stacked', label: 'Stacked Suites' },
+                { id: 'favorites', label: '★ Starred' },
+              ].map(type => (
+                <button
+                  type="button"
+                  key={type.id}
+                  onClick={() => setFilterType(type.id as 'all' | 'single' | 'stacked' | 'favorites')}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition-colors cursor-pointer whitespace-nowrap ${
+                    filterType === type.id
+                      ? 'bg-indigo-600 text-white shadow-xs'
+                      : 'bg-white dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
+                  }`}
+                >
+                  {type.label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        </Card>
 
         {/* Dynamic Tag Filters */}
         {allUniqueTags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 px-3.5 py-2 bg-slate-900/40 rounded-xl border border-slate-800/80 text-xs">
-            <span className="font-mono text-[11px] text-slate-500 mr-1 uppercase">Filter by tag:</span>
-            <button type="button"
+          <div className="flex flex-wrap items-center gap-1.5 px-3.5 py-2 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200 dark:border-slate-800/80 text-xs">
+            <span className="font-mono text-[11px] text-slate-400 mr-1 uppercase">Filter by tag:</span>
+            <button
+              type="button"
               onClick={() => setSelectedTagFilter('all')}
               className={`px-2 py-0.5 text-[11px] font-mono font-medium rounded-md transition-colors cursor-pointer ${
                 selectedTagFilter === 'all'
-                  ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
-                  : 'bg-slate-950 text-slate-400 border border-slate-800 hover:text-white'
+                  ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
+                  : 'bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               All Tags
             </button>
             {allUniqueTags.map(tag => (
-              <button type="button"
+              <button
+                type="button"
                 key={tag}
                 onClick={() => setSelectedTagFilter(tag)}
                 className={`px-2 py-0.5 text-[11px] font-mono font-medium rounded-md transition-colors cursor-pointer ${
                   selectedTagFilter === tag
-                    ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
-                    : 'bg-slate-950 text-slate-400 border border-slate-800 hover:text-white'
+                    ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
+                    : 'bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 {tag}
@@ -278,10 +283,10 @@ export default function HistoryView({
         {/* Left Column: Drafts List */}
         <div className="lg:col-span-5 space-y-3 max-h-[640px] overflow-y-auto pr-1">
           {filteredHistory.length === 0 ? (
-            <div className="p-10 text-center rounded-2xl bg-slate-900/40 border border-slate-800 space-y-2">
-              <FolderOpen className="h-8 w-8 text-slate-600 mx-auto" />
-              <h4 className="text-xs font-semibold text-slate-300">No matching drafts found</h4>
-              <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
+            <div className="p-10 text-center rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 space-y-2">
+              <FolderOpen className="h-8 w-8 text-slate-400 mx-auto" />
+              <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300">No matching drafts found</h4>
+              <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
                 Generate content in Single Writer or Content Stacker to archive outputs here.
               </p>
             </div>
@@ -292,21 +297,21 @@ export default function HistoryView({
                 <div
                   key={item.id}
                   onClick={() => setSelectedItem(item)}
-                  className={`p-4 rounded-xl text-left border cursor-pointer transition-colors relative ${
+                  className={`p-4 rounded-xl text-left border cursor-pointer transition-all relative ${
                     isSelected
-                      ? 'bg-indigo-600/10 border-indigo-500 text-white shadow-sm'
-                      : 'bg-slate-900/60 hover:bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                      ? 'bg-indigo-50 dark:bg-indigo-600/10 border-indigo-500 text-slate-900 dark:text-white shadow-xs'
+                      : 'bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-2 select-none">
                     <div className="flex items-center gap-1.5">
                       {getFormatBadge(item)}
                       {item.isFavorite && (
-                        <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
+                        <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
                       )}
                     </div>
                     <div className="flex items-center gap-2 relative">
-                      <span className="text-[11px] font-mono text-slate-500 tabular-nums">
+                      <span className="text-[11px] font-mono text-slate-400 tabular-nums">
                         {new Date(item.createdAt).toLocaleDateString(undefined, { 
                           month: 'short', 
                           day: 'numeric',
@@ -316,17 +321,19 @@ export default function HistoryView({
                       </span>
 
                       {/* Quick Actions trigger button */}
-                      <button type="button"
+                      <IconButton
+                        aria-label="Draft options"
+                        variant="ghost"
+                        size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           setOpenMenuId(openMenuId === item.id ? null : item.id);
                         }}
-                        className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                        className="-mr-2 text-slate-400 hover:text-slate-900 dark:hover:text-white"
                         title="Draft options"
-                        aria-label="Draft options"
                       >
                         <MoreVertical className="h-4 w-4" />
-                      </button>
+                      </IconButton>
 
                       {/* Quick Actions Dropdown Menu */}
                       {openMenuId === item.id && (
@@ -338,54 +345,58 @@ export default function HistoryView({
                               setOpenMenuId(null);
                             }}
                           />
-                          <div className="absolute right-0 top-7 w-44 rounded-xl bg-slate-900 border border-slate-800 shadow-xl py-1 z-40 text-xs font-medium divide-y divide-slate-800">
+                          <div className="absolute right-0 top-7 w-44 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1 z-40 text-xs font-medium divide-y divide-slate-100 dark:divide-slate-800">
                             <div className="py-1">
-                              <button type="button"
+                              <button
+                                type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onToggleFavorite(item.id);
                                   setOpenMenuId(null);
                                 }}
-                                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                               >
-                                <Star className={`h-3.5 w-3.5 ${item.isFavorite ? 'text-amber-400 fill-amber-400' : 'text-slate-500'}`} />
+                                <Star className={`h-3.5 w-3.5 ${item.isFavorite ? 'text-amber-500 fill-amber-500' : 'text-slate-400'}`} />
                                 <span>{item.isFavorite ? 'Remove Star' : 'Add Star'}</span>
                               </button>
                               
-                              <button type="button"
+                              <button
+                                type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onRegenerate(item);
                                   setOpenMenuId(null);
                                 }}
-                                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                               >
-                                <RefreshCw className="h-3.5 w-3.5 text-indigo-400" />
+                                <RefreshCw className="h-3.5 w-3.5 text-indigo-500" />
                                 <span>Re-generate Draft</span>
                               </button>
 
-                              <button type="button"
+                              <button
+                                type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   exportItemToPDF(item);
                                   setOpenMenuId(null);
                                 }}
-                                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                               >
-                                <FileText className="h-3.5 w-3.5 text-indigo-400" />
+                                <FileText className="h-3.5 w-3.5 text-indigo-500" />
                                 <span>Export PDF</span>
                               </button>
                             </div>
                             
                             <div className="py-1">
-                              <button type="button"
+                              <button
+                                type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onDelete(item.id);
                                   if (selectedItem?.id === item.id) setSelectedItem(null);
                                   setOpenMenuId(null);
                                 }}
-                                className="w-full flex items-center gap-2 px-3 py-1.5 text-rose-400 hover:bg-rose-500/10 transition-colors"
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
                                 <span>Delete Permanently</span>
@@ -398,18 +409,18 @@ export default function HistoryView({
                   </div>
 
                   <div className="space-y-1">
-                    <h4 className="text-xs font-bold text-white line-clamp-1">
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">
                       {item.title}
                     </h4>
-                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
                       "{item.input}"
                     </p>
                     {item.tags && item.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2 text-[9px] font-mono font-medium">
                         {item.tags.map(t => (
-                          <span key={t} className="px-1.5 py-0.5 rounded-md bg-slate-950 text-indigo-400 border border-slate-800">
+                          <Badge key={t} variant="primary" size="xs">
                             {t}
-                          </span>
+                          </Badge>
                         ))}
                       </div>
                     )}
@@ -423,16 +434,18 @@ export default function HistoryView({
         {/* Right Column: Full Inspector View */}
         <div className="lg:col-span-7">
           {selectedItem ? (
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-5 shadow-sm min-h-[500px] flex flex-col h-[640px]">
-              <div className="flex items-start justify-between border-b border-slate-800 pb-4 shrink-0 gap-4">
+            <Card variant="default" padding="lg" className="space-y-5 shadow-sm min-h-[500px] flex flex-col h-[640px]">
+              <div className="flex items-start justify-between border-b border-slate-200 dark:border-slate-800 pb-4 shrink-0 gap-4">
                 <div className="space-y-1.5 min-w-0">
-                  <h3 className="text-sm font-bold text-white truncate">{selectedItem.title}</h3>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                    {selectedItem.title}
+                  </h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-mono text-slate-400 uppercase">
+                    <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 uppercase">
                       {selectedItem.type === 'single' ? `Single ${selectedItem.contentType} draft` : '5-in-1 stacked suite'}
                     </span>
-                    <span className="text-slate-600">•</span>
-                    <span className="text-[11px] font-mono text-slate-500 tabular-nums">
+                    <span className="text-slate-400">•</span>
+                    <span className="text-[11px] font-mono text-slate-400 tabular-nums">
                       {new Date(selectedItem.createdAt).toLocaleString()}
                     </span>
                   </div>
@@ -440,20 +453,21 @@ export default function HistoryView({
                   {/* Interactive Tags */}
                   <div className="flex flex-wrap items-center gap-1.5 pt-1">
                     {(selectedItem.tags || []).map(t => (
-                      <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
-                        {t}
-                        <button type="button"
+                      <Badge key={t} variant="primary" size="sm">
+                        <span>{t}</span>
+                        <button
+                          type="button"
                           onClick={() => {
                             const newTags = (selectedItem.tags || []).filter(x => x !== t);
                             onUpdateTags?.(selectedItem.id, newTags);
                             setSelectedItem(prev => prev ? { ...prev, tags: newTags } : null);
                           }}
-                          className="hover:text-rose-400 cursor-pointer text-xs leading-none p-0.5 rounded hover:bg-indigo-500/30"
+                          className="hover:text-rose-500 cursor-pointer text-xs ml-1"
                           aria-label={`Remove ${t}`}
                         >
                           ×
                         </button>
-                      </span>
+                      </Badge>
                     ))}
 
                     {showAddTagInput ? (
@@ -469,33 +483,37 @@ export default function HistoryView({
                             }
                           }}
                           placeholder="Label name..."
-                          className="bg-slate-950 border border-slate-800 rounded px-2 py-0.5 text-[10px] focus:outline-none focus:border-indigo-500 text-slate-200 w-24"
+                          className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-md px-2 py-0.5 text-[10px] focus:outline-none focus:border-indigo-500 text-slate-900 dark:text-slate-200 w-24"
                           autoFocus
                         />
-                        <button type="button"
+                        <Button
+                          variant="primary"
+                          size="xs"
                           onClick={() => handleAddTag(customTagInput)}
-                          className="text-[10px] font-bold px-2 py-0.5 bg-indigo-600 rounded text-white cursor-pointer"
                         >
                           Add
-                        </button>
-                        <button type="button"
+                        </Button>
+                        <button
+                          type="button"
                           onClick={() => setShowAddTagInput(false)}
-                          className="text-slate-500 hover:text-slate-300 cursor-pointer text-xs"
+                          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer text-xs px-1"
                         >
                           ×
                         </button>
                       </div>
                     ) : (
-                      <button type="button"
+                      <button
+                        type="button"
                         onClick={() => setShowAddTagInput(true)}
-                        className="px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-400 hover:text-white cursor-pointer"
+                        className="px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md bg-slate-100 dark:bg-slate-950 hover:bg-slate-200 dark:hover:bg-slate-850 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
                       >
                         + Add Tag
                       </button>
                     )}
 
                     {presets.filter(p => !(selectedItem.tags || []).includes(p)).map(p => (
-                      <button type="button"
+                      <button
+                        type="button"
                         key={p}
                         onClick={() => {
                           const currentTags = selectedItem.tags || [];
@@ -503,7 +521,7 @@ export default function HistoryView({
                           onUpdateTags?.(selectedItem.id, newTags);
                           setSelectedItem(prev => prev ? { ...prev, tags: newTags } : null);
                         }}
-                        className="px-2 py-0.5 text-[10px] font-mono rounded-md bg-slate-950 hover:bg-slate-850 text-slate-500 hover:text-slate-300 border border-slate-800 cursor-pointer"
+                        className="px-2 py-0.5 text-[10px] font-mono rounded-md bg-slate-100 dark:bg-slate-950 hover:bg-slate-200 dark:hover:bg-slate-850 text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 border border-slate-200 dark:border-slate-800 cursor-pointer"
                       >
                         +{p}
                       </button>
@@ -512,61 +530,69 @@ export default function HistoryView({
                 </div>
 
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <button type="button"
-                    onClick={() => onCopy(getFullContentForCopy(selectedItem))}
-                    className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"
-                    title="Copy full draft content"
+                  <IconButton
                     aria-label="Copy full draft content"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onCopy(getFullContentForCopy(selectedItem))}
+                    title="Copy full draft content"
                   >
                     {copiedId === getFullContentForCopy(selectedItem) ? (
-                      <Check className="h-4 w-4 text-emerald-400" />
+                      <Check className="h-4 w-4 text-emerald-500" />
                     ) : (
                       <Copy className="h-4 w-4" />
                     )}
-                  </button>
-                  <button type="button"
-                    onClick={() => handleDownload(selectedItem)}
-                    className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"
-                    title="Download as Markdown (.md)"
+                  </IconButton>
+
+                  <IconButton
                     aria-label="Download as Markdown"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDownload(selectedItem)}
+                    title="Download as Markdown (.md)"
                   >
                     <Download className="h-4 w-4" />
-                  </button>
-                  <button type="button"
+                  </IconButton>
+
+                  <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={() => exportItemToPDF(selectedItem)}
-                    className="px-3 py-1.5 min-h-[38px] rounded-lg bg-indigo-600/15 hover:bg-indigo-600/25 border border-indigo-500/30 text-indigo-300 transition-colors cursor-pointer text-xs font-semibold flex items-center gap-1.5"
+                    leftIcon={<FileText className="h-3.5 w-3.5 text-indigo-500" />}
                     title="Export styled PDF"
                   >
-                    <FileText className="h-3.5 w-3.5" />
-                    <span>PDF</span>
-                  </button>
-                  <button type="button"
+                    PDF
+                  </Button>
+
+                  <IconButton
+                    aria-label="Delete item"
+                    variant="outline"
+                    size="sm"
                     onClick={() => {
                       onDelete(selectedItem.id);
                       setSelectedItem(null);
                     }}
-                    className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer text-xs"
+                    className="hover:text-rose-500 hover:border-rose-500/30"
                     title="Delete item"
-                    aria-label="Delete item"
                   >
                     <Trash2 className="h-4 w-4" />
-                  </button>
+                  </IconButton>
                 </div>
               </div>
 
               {/* Main Content Area */}
               <div className="flex-1 overflow-y-auto pr-1 space-y-4 font-sans text-xs sm:text-sm">
-                <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-                  <div className="text-[10px] font-mono font-bold uppercase text-slate-500">
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                  <div className="text-[10px] font-mono font-bold uppercase text-slate-400">
                     Source Concept / Input Prompt
                   </div>
-                  <p className="text-slate-300 text-xs italic">
+                  <p className="text-slate-700 dark:text-slate-300 text-xs italic">
                     "{selectedItem.input}"
                   </p>
                 </div>
 
                 {selectedItem.type === 'single' ? (
-                  <div className="whitespace-pre-wrap text-slate-200 leading-relaxed p-4 bg-slate-950 rounded-xl border border-slate-800">
+                  <div className="whitespace-pre-wrap text-slate-800 dark:text-slate-200 leading-relaxed p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800">
                     {selectedItem.data.singleOutput}
                   </div>
                 ) : (
@@ -578,17 +604,20 @@ export default function HistoryView({
                       { id: 'instagram', name: 'Instagram Caption', content: selectedItem.data.instagramCaption },
                       { id: 'email', name: 'Email Newsletter', content: selectedItem.data.emailNewsletter },
                     ].map(block => (
-                      <div key={block.id} className="space-y-2 p-4 bg-slate-950 rounded-xl border border-slate-800">
-                        <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
-                          <span className="text-[10px] font-mono font-bold uppercase text-indigo-400">{block.name}</span>
-                          <button type="button"
+                      <div key={block.id} className="space-y-2 p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-2">
+                          <span className="text-[10px] font-mono font-bold uppercase text-indigo-500 dark:text-indigo-400">
+                            {block.name}
+                          </span>
+                          <button
+                            type="button"
                             onClick={() => onCopy(block.content || '')}
-                            className="text-[11px] text-slate-400 hover:text-white cursor-pointer flex items-center gap-1 font-medium"
+                            className="text-[11px] text-slate-500 hover:text-slate-900 dark:hover:text-white cursor-pointer flex items-center gap-1 font-medium"
                           >
                             {copiedId === block.content ? 'Copied' : 'Copy'}
                           </button>
                         </div>
-                        <div className="whitespace-pre-wrap text-slate-300 text-xs leading-relaxed max-h-48 overflow-y-auto pr-1">
+                        <div className="whitespace-pre-wrap text-slate-700 dark:text-slate-300 text-xs leading-relaxed max-h-48 overflow-y-auto pr-1">
                           {block.content}
                         </div>
                       </div>
@@ -596,12 +625,12 @@ export default function HistoryView({
                   </div>
                 )}
               </div>
-            </div>
+            </Card>
           ) : (
-            <div className="p-8 text-center rounded-2xl bg-slate-900/40 border border-slate-800 text-slate-500 flex flex-col items-center justify-center min-h-[500px] space-y-2">
-              <Eye className="h-8 w-8 text-slate-600" />
-              <h4 className="text-xs font-semibold text-slate-400">Select a draft to inspect</h4>
-              <p className="text-[11px] text-slate-500 max-w-xs">
+            <div className="p-8 text-center rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 text-slate-500 flex flex-col items-center justify-center min-h-[500px] space-y-2">
+              <Eye className="h-8 w-8 text-slate-400" />
+              <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300">Select a draft to inspect</h4>
+              <p className="text-[11px] text-slate-400 max-w-xs">
                 Click any saved campaign on the left to inspect, download as Markdown, copy, or export as PDF.
               </p>
             </div>

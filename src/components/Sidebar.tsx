@@ -41,13 +41,13 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, theme
   }, [isOpen]);
 
   const menuItems = [
+    { id: 'overview', label: 'SaaS Showcase', icon: Compass },
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'write', label: 'AI Writer', icon: PenTool },
     { id: 'stacker', label: 'Content Stacker', icon: Layers, badge: '5-in-1' },
+    { id: 'write', label: 'AI Writer', icon: PenTool },
     { id: 'prompts', label: 'Prompt Library', icon: BookOpen },
     { id: 'history', label: 'Studio Archive', icon: History },
     { id: 'profile', label: 'Account & Quota', icon: User },
-    { id: 'overview', label: 'Product Tour', icon: Compass },
   ];
 
   const remainingCredits = Math.max(0, user.creditsTotal - user.creditsUsed);
@@ -57,19 +57,27 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, theme
     <div className="flex flex-col h-full bg-slate-950 text-slate-100 border-r border-slate-800 select-none">
       {/* Brand Header */}
       <div className="p-5 border-b border-slate-800 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-sm">
+        <button
+          type="button"
+          onClick={() => {
+            setActiveTab('overview');
+            setIsOpen(false);
+          }}
+          className="flex items-center gap-3 text-left group cursor-pointer focus:outline-none"
+          title="Switch to SaaS Landing Showcase"
+        >
+          <div className="h-9 w-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-xs group-hover:bg-indigo-500 transition-colors shrink-0">
             <Sparkles className="h-4.5 w-4.5" />
           </div>
           <div>
-            <span className="font-bold text-base tracking-tight text-white block leading-tight">
-              Sharp AI
+            <span className="font-bold text-base tracking-tight text-white block leading-tight group-hover:text-indigo-200 transition-colors">
+              Sharp AI Max
             </span>
             <span className="text-[10px] text-indigo-400 font-mono font-semibold uppercase tracking-wider block">
-              Content Studio
+              Multi-Channel Content Studio
             </span>
           </div>
-        </div>
+        </button>
         {isOpen && (
           <button type="button" 
             onClick={() => setIsOpen(false)} 
@@ -211,21 +219,30 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, theme
   return (
     <>
       {/* Mobile Sticky Header Bar with Top-Right Utilities */}
-      <header className="md:hidden h-14 bg-slate-950 border-b border-slate-800 px-4 flex items-center justify-between text-white sticky top-0 z-40">
-        <div className="flex items-center gap-2.5">
-          <div className="h-7 w-7 rounded-md bg-indigo-600 flex items-center justify-center">
-            <Sparkles className="h-4 w-4 text-white" />
+      <header className="md:hidden h-16 bg-slate-950 border-b border-slate-800 px-4 flex items-center justify-between text-white sticky top-0 z-40 select-none">
+        <button
+          type="button"
+          onClick={() => setActiveTab('overview')}
+          className="flex items-center gap-3 text-left group cursor-pointer focus:outline-none"
+        >
+          <div className="h-9 w-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-xs group-hover:bg-indigo-500 transition-colors shrink-0">
+            <Sparkles className="h-4.5 w-4.5" />
           </div>
-          <span className="font-bold text-sm tracking-tight text-white">
-            Sharp AI
-          </span>
-        </div>
+          <div>
+            <span className="font-bold text-base tracking-tight text-white block leading-tight">
+              Sharp AI Max
+            </span>
+            <span className="text-[10px] text-indigo-400 font-mono font-semibold uppercase tracking-wider block">
+              Multi-Channel Studio
+            </span>
+          </div>
+        </button>
 
-        {/* Top-Right Utilities: Theme switcher, quota indicator, and mobile menu */}
+        {/* Top-Right Utilities: Theme switcher and mobile menu */}
         <div className="flex items-center gap-2">
           <button type="button"
             onClick={onToggleTheme}
-            className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer"
+            className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer border border-slate-800"
             aria-label="Toggle visual theme"
             title="Toggle visual theme"
           >
@@ -241,7 +258,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, theme
             aria-expanded={isOpen}
             aria-controls="mobile-navigation-drawer"
             onClick={() => setIsOpen(!isOpen)}
-            className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer"
+            className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer border border-slate-800"
             aria-label="Toggle navigation menu"
           >
             <Menu className="h-5 w-5" />

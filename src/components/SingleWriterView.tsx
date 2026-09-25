@@ -18,6 +18,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { ContentType, PromptCategory, PromptTemplate } from '../types';
+import { PageHeader, Card, Button, Badge } from './ui';
 
 interface SingleWriterViewProps {
   prompts: PromptTemplate[];
@@ -395,10 +396,17 @@ export default function SingleWriterView({
   };
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 md:gap-8 items-start animate-fade-in text-slate-100">
-      {/* Inputs Column */}
-      <div className="xl:col-span-7 space-y-6">
-        <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-6 shadow-sm">
+    <div className="space-y-6 md:space-y-8 animate-fade-in text-slate-900 dark:text-slate-100">
+      <PageHeader
+        kicker="TARGETED COPYWRITING"
+        title="Single AI Writer"
+        description="Generate targeted copy tailored for specific platform audiences and formats."
+      />
+
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 md:gap-8 items-start">
+        {/* Inputs Column */}
+        <div className="xl:col-span-7 space-y-6">
+          <Card variant="default" padding="lg" className="space-y-6 shadow-sm">
           <div className="space-y-1">
             <h2 className="text-base font-bold text-white">Single Channel Writer</h2>
             <p className="text-xs text-slate-400">Generate targeted copy tailored for specific platform audiences and formats</p>
@@ -488,9 +496,14 @@ export default function SingleWriterView({
                   </span>
                 )}
               </label>
-              <span className="text-slate-500 font-mono text-[11px] tabular-nums">
-                {promptInput.length}/{MAX_PROMPT_LENGTH}
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-[11px] font-mono text-slate-500 hidden sm:inline">
+                  (Press Cmd/Ctrl + Enter to run)
+                </span>
+                <span className="text-slate-500 font-mono text-[11px] tabular-nums">
+                  {promptInput.length}/{MAX_PROMPT_LENGTH}
+                </span>
+              </div>
             </div>
             
             <textarea
@@ -498,6 +511,14 @@ export default function SingleWriterView({
               id="prompt-input"
               value={promptInput}
               onChange={(e) => setPromptInput(e.target.value.slice(0, MAX_PROMPT_LENGTH))}
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                  e.preventDefault();
+                  if (!isGenerating && promptInput.trim()) {
+                    handleGenerate();
+                  }
+                }
+              }}
               placeholder="Describe your audience, topic, thesis, or product release. What are the key takeaways, arguments, or questions to address?"
               className="w-full h-36 bg-slate-950 text-slate-100 border border-slate-800 rounded-xl p-3.5 text-xs md:text-sm focus:outline-none focus:border-indigo-500 placeholder-slate-600 resize-none leading-relaxed transition-colors"
             />
@@ -529,13 +550,13 @@ export default function SingleWriterView({
               </>
             )}
           </button>
-        </div>
+        </Card>
       </div>
 
       {/* Output and Preview Column */}
       <div className="xl:col-span-5 space-y-6">
-        <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-5 shadow-sm min-h-[460px] flex flex-col">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0">
+        <Card variant="default" padding="lg" className="space-y-5 shadow-sm min-h-[460px] flex flex-col">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 shrink-0">
             <div>
               <h3 className="text-xs font-bold text-white flex items-center gap-2">
                 <Eye className="h-3.5 w-3.5 text-slate-400" />
@@ -651,8 +672,9 @@ export default function SingleWriterView({
             )}
             <RenderSocialMockup />
           </div>
-        </div>
+        </Card>
       </div>
     </div>
+  </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ContentType } from '../types';
+import { PageHeader, Card, Button, Badge } from './ui';
 import { 
   Sparkles, 
   Layers, 
@@ -238,10 +239,11 @@ ${stackedAssets.emailNewsletter}
     <div className="space-y-6 md:space-y-8 animate-fade-in text-slate-100">
       {/* Header */}
       <div className="space-y-1.5">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md">
-            Multi-Channel Stacker
-          </span>
+        <div className="flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider text-indigo-400">
+          <Sparkles className="h-3.5 w-3.5" />
+          <span>Multi-Channel Engine</span>
+          <span aria-hidden="true">·</span>
+          <span>5 Formats Synchronized</span>
         </div>
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
           Content Stacker
@@ -262,6 +264,14 @@ ${stackedAssets.emailNewsletter}
             id="stacker-idea-box"
             value={ideaInput}
             onChange={(e) => setIdeaInput(e.target.value.slice(0, 4000))}
+            onKeyDown={(e) => {
+              if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                e.preventDefault();
+                if (!isStacking && ideaInput.trim()) {
+                  handleStack();
+                }
+              }
+            }}
             placeholder="e.g. A developer tool for zero-config distributed SQLite replication on edge nodes with automatic failover and client-side encryption..."
             className="w-full h-32 bg-slate-950 text-slate-100 border border-slate-800 rounded-xl p-3.5 text-xs md:text-sm focus:outline-none focus:border-indigo-500 placeholder-slate-600 resize-none leading-relaxed transition-colors"
           />
@@ -275,9 +285,14 @@ ${stackedAssets.emailNewsletter}
         )}
 
         <div className="flex items-center justify-between pt-1">
-          <span className="text-xs font-mono text-slate-500 tabular-nums">
-            {ideaInput.length}/4000 characters
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-mono text-slate-500 tabular-nums">
+              {ideaInput.length}/4000 characters
+            </span>
+            <span className="text-[11px] font-mono text-slate-500 hidden sm:inline">
+              (Press Cmd/Ctrl + Enter to run)
+            </span>
+          </div>
           <button type="button"
             id="activate-stacker-button"
             onClick={handleStack}
@@ -359,10 +374,52 @@ ${stackedAssets.emailNewsletter}
       )}
 
       {/* Output Section */}
-      {stackedAssets && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start animate-fade-in">
-          {/* Channel Selector Sidebar */}
-          <div className="lg:col-span-4 p-5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-4">
+      {stackedAssets && channelStats && (
+        <div className="space-y-6 animate-fade-in">
+          {/* Executive Channel Summary Card (Tesler's Law & Cognitive Relief) */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-indigo-950/20 border border-indigo-500/25 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider text-indigo-400">
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Stack Synthesis Complete</span>
+                <span aria-hidden="true">·</span>
+                <span>5 Channels Formatted</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-300">
+                <span><strong>Blog:</strong> {channelStats.blog.toLocaleString()} words</span>
+                <span aria-hidden="true" className="text-slate-600">·</span>
+                <span><strong>LinkedIn:</strong> {channelStats.linkedin.toLocaleString()} words</span>
+                <span aria-hidden="true" className="text-slate-600">·</span>
+                <span><strong>X Thread:</strong> {stackedAssets.xThread.length} tweets (All &le; 280 chars)</span>
+                <span aria-hidden="true" className="text-slate-600">·</span>
+                <span><strong>Newsletter:</strong> {channelStats.email.toLocaleString()} words</span>
+                <span aria-hidden="true" className="text-slate-600">·</span>
+                <span><strong>Instagram:</strong> {channelStats.instagram.toLocaleString()} words</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleExportCampaignMarkdown}
+                className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+              >
+                <Download className="h-3.5 w-3.5" />
+                <span>Export Markdown</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleCopyAll}
+                className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <Copy className="h-3.5 w-3.5" />
+                <span>Copy All</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
+            {/* Channel Selector Sidebar */}
+            <div className="lg:col-span-4 p-5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-4">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white">Generated Deliverables</h3>
               <p className="text-[11px] text-slate-400">Select a channel to review formatted copy</p>
@@ -569,7 +626,39 @@ ${stackedAssets.emailNewsletter}
             </div>
           </div>
         </div>
-      )}
-    </div>
-  );
+
+        {/* Sticky Bottom Action Dock (Peak-End Rule & Motor Efficiency) */}
+        <aside
+          aria-label="Campaign export dock"
+          className="sticky bottom-4 z-20 mx-auto max-w-3xl p-3 sm:px-5 sm:py-3 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-2xl shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in"
+        >
+          <div className="flex items-center gap-2.5 text-xs">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0" />
+            <span className="font-mono text-slate-300">
+              5 deliverables ready · {(channelStats.blog + channelStats.linkedin + channelStats.x + channelStats.instagram + channelStats.email).toLocaleString()} total words
+            </span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleCopyAll}
+              className="px-3 py-1.5 text-xs rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Copy className="h-3.5 w-3.5 text-slate-400" />
+              <span>{copiedChannel === 'all' ? 'Copied All' : 'Copy All'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleExportCampaignMarkdown}
+              className="px-4 py-1.5 text-xs rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+            >
+              <Download className="h-3.5 w-3.5" />
+              <span>Export Campaign (.md)</span>
+            </button>
+          </div>
+        </aside>
+      </div>
+    )}
+  </div>
+);
 }

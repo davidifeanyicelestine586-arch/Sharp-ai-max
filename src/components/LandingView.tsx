@@ -20,6 +20,7 @@ import {
   Moon
 } from 'lucide-react';
 import { UserProfile } from '../types';
+import { AppHeader, AppFooter, Button, Badge } from './ui';
 
 interface LandingViewProps {
   onEnterStudio: (tier?: 'free' | 'pro') => void;
@@ -261,75 +262,15 @@ export default function LandingView({
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased selection:bg-indigo-600 selection:text-white">
-      {/* Sticky Top Header Navigation */}
-      <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Brand */}
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-sm">
-              <Sparkles className="h-5 w-5" />
-            </div>
-            <div>
-              <span className="font-bold text-base tracking-tight text-white block leading-tight">
-                Sharp AI Max
-              </span>
-              <span className="text-[10px] text-indigo-400 font-mono font-semibold uppercase tracking-wider block">
-                Multi-Channel Content Studio
-              </span>
-            </div>
-          </div>
-
-          {/* Desktop Nav Anchors */}
-          <nav aria-label="Landing Page Navigation" className="hidden md:flex items-center gap-7 text-xs font-semibold text-slate-300">
-            <a href="#sandbox" className="hover:text-white transition-colors">Interactive Demo</a>
-            <a href="#pillars" className="hover:text-white transition-colors">Core Pillars</a>
-            <a href="#workflow" className="hover:text-white transition-colors">Workflow</a>
-            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-            <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
-          </nav>
-
-          {/* Actions */}
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={onToggleTheme}
-              className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 transition-colors cursor-pointer border border-slate-800"
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? <Moon className="h-4 w-4 text-indigo-400" /> : <Sun className="h-4 w-4 text-amber-400" />}
-            </button>
-
-            {user.isLoggedIn ? (
-              <button
-                type="button"
-                onClick={() => onEnterStudio()}
-                className="px-4 py-2 min-h-[40px] rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer"
-              >
-                <span>Open Studio</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={onOpenAuthModal}
-                  className="hidden sm:inline-flex px-3.5 py-2 min-h-[40px] rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold transition-colors border border-slate-800 cursor-pointer"
-                >
-                  Sign In
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onEnterStudio('free')}
-                  className="px-4 py-2 min-h-[40px] rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer"
-                >
-                  <span>Launch Free Workspace</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+      {/* Unified Global Header Navigation */}
+      <AppHeader
+        variant="landing"
+        user={user}
+        theme={theme}
+        onToggleTheme={onToggleTheme}
+        onEnterStudio={onEnterStudio}
+        onOpenAuthModal={onOpenAuthModal}
+      />
 
       <main>
         {/* HERO SECTION: Editorial Impact & Value Proposition */}
@@ -363,7 +304,7 @@ export default function LandingView({
                   onClick={() => onEnterStudio(user.tier || 'free')}
                   className="w-full sm:w-auto px-6 py-3.5 min-h-[48px] rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>Launch Live Workspace</span>
+                  <span>{user.isLoggedIn ? 'Return to Studio Workspace' : 'Launch Live Workspace'}</span>
                   <ArrowRight className="h-4 w-4" />
                 </button>
 
@@ -462,7 +403,7 @@ export default function LandingView({
                   onClick={() => onEnterStudio(user.tier || 'free')}
                   className="w-full py-2.5 px-4 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-200 text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>Stack Your Own Idea in Studio</span>
+                  <span>{user.isLoggedIn ? 'Stack Your Idea in Studio' : 'Stack Your Own Idea in Studio'}</span>
                   <ArrowRight className="h-3.5 w-3.5" />
                 </button>
               </div>
@@ -870,7 +811,7 @@ export default function LandingView({
                   onClick={() => onEnterStudio(user.tier || 'free')}
                   className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>Launch Live Workspace Now</span>
+                  <span>{user.isLoggedIn ? 'Return to Studio Workspace' : 'Launch Live Workspace Now'}</span>
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
@@ -879,40 +820,11 @@ export default function LandingView({
         </section>
       </main>
 
-      {/* EDITORIAL FOOTER */}
-      <footer className="border-t border-slate-800/80 py-12 text-xs text-slate-500 bg-slate-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <div className="h-7 w-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
-              <Sparkles className="h-4 w-4" />
-            </div>
-            <div>
-              <span className="font-bold text-sm text-white">Sharp AI Max</span>
-              <p className="text-[10px] text-slate-500">Multi-Channel Content Engineering Studio</p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-6 text-slate-400">
-            <a href="#sandbox" className="hover:text-white transition-colors">Interactive Demo</a>
-            <a href="#pillars" className="hover:text-white transition-colors">Architecture</a>
-            <a href="#pricing" className="hover:text-white transition-colors">Tiers</a>
-            <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
-            <button
-              type="button"
-              onClick={() => onEnterStudio()}
-              className="text-indigo-400 hover:text-indigo-300 font-semibold cursor-pointer"
-            >
-              Open Studio Workspace &rarr;
-            </button>
-          </div>
-
-          <div className="text-center md:text-right text-[11px] text-slate-600 font-mono">
-            <span>Client storage private</span>
-            <span aria-hidden="true" className="mx-2">·</span>
-            <span>Gemini 3.8 Flash</span>
-          </div>
-        </div>
-      </footer>
+      {/* Unified Global Footer */}
+      <AppFooter
+        variant="landing"
+        onNavigateTab={() => onEnterStudio()}
+      />
     </div>
   );
 }
